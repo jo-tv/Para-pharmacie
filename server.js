@@ -17,23 +17,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // اتصال بقاعدة البيانات
 import dotenv from 'dotenv';
-
-dotenv.config(); // تحميل المتغيرات من .env
+dotenv.config();
 
 async function connectToDatabase() {
-  const { DB_USER, DB_PASS, DB_CLUSTER, DB_NAME } = process.env;
-
-  const uri = `mongodb+srv://${DB_USER}:${DB_PASS}@${DB_CLUSTER}.mongodb.net/${DB_NAME}?retryWrites=true&w=majority`;
-
   try {
-    await mongoose.connect(uri);
+    await mongoose.connect(process.env.MONGO_URI);
     console.log('✅ CONNECTED TO DATABASE');
   } catch (error) {
     console.error('❌ ERROR CONNECTING TO DATABASE:', error.message);
   }
 }
-connectToDatabase();
 
+connectToDatabase();
 // تحديد مجلد التخزين
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'), // مجلد uploads
