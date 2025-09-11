@@ -332,7 +332,7 @@
 
       async function loadStats() {
         try {
-          const res = await fetch('http://localhost:5000/api/products');
+          const res = await fetch('/api/products');
           const products = await res.json();
 
           const totalProducts = products.length;

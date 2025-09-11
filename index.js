@@ -15,8 +15,6 @@ app.use('/uploads', express.static('uploads'));
 // ميدل وير لقراءة ملفات static
 app.use(express.static(path.join(__dirname, 'public')));
 
-
-
 // الاتصال بقاعدة بيانات MongoDB
 async function connectToDatabase() {
   try {
@@ -43,7 +41,7 @@ const upload = multer({ storage });
 app.post('/api/upload', upload.single('image'), (req, res) => {
   if (!req.file) return res.status(400).json({ ok: false, message: 'Aucune image reçue' });
 
-  const url = `http://localhost:5000/uploads/${req.file.filename}`;
+  const url = `/uploads/${req.file.filename}`;
   res.json({ ok: true, url });
 });
 
@@ -149,5 +147,5 @@ app.put('/api/products/:id', async (req, res) => {
 });
 
 app.listen(5000, () => {
-  console.log('🚀 Backend running on http://localhost:5000');
+  console.log('🚀 Backend running on ');
 });

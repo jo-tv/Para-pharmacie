@@ -50,7 +50,7 @@ let products = [];
 // ====== Charger produits ======
 async function loadProducts() {
   try {
-    const res = await fetch('http://localhost:5000/api/products');
+    const res = await fetch('/api/products');
     products = await res.json();
     renderProducts();
   } catch (err) {
@@ -126,7 +126,7 @@ function renderProducts(list = products) {
       deleteBtn.addEventListener('click', () => {
         if (!p._id) return alert('ID produit manquant');
         if (confirm(`Voulez-vous vraiment supprimer ${p.name} ?`)) {
-          fetch(`http://localhost:5000/api/products/${p._id}`, { method: 'DELETE' })
+          fetch(`/api/products/${p._id}`, { method: 'DELETE' })
             .then((res) => res.json())
             .then((data) => {
               if (data.ok) {
@@ -161,7 +161,7 @@ if (form) {
       formData.append('image', file);
 
       try {
-        const res = await fetch('http://localhost:5000/api/upload', {
+        const res = await fetch('/api/upload', {
           method: 'POST',
           body: formData,
         });
@@ -187,7 +187,7 @@ if (form) {
     };
 
     try {
-      const res = await fetch('http://localhost:5000/api/products', {
+      const res = await fetch('/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newProduct),
@@ -222,7 +222,7 @@ if (editForm) {
       expiry: document.getElementById('editExpiry').value,
     };
     try {
-      const res = await fetch(`http://localhost:5000/api/products/${id}`, {
+      const res = await fetch(`/api/products/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updated),
@@ -251,14 +251,10 @@ function filterProducts() {
   const filtered = products.filter((p) => {
     const pname = (p.name || '').toLowerCase();
     const pbarcode =
-      p.barcode !== undefined && p.barcode !== null
-        ? String(p.barcode).toLowerCase()
-        : '';
+      p.barcode !== undefined && p.barcode !== null ? String(p.barcode).toLowerCase() : '';
 
     // يطابق الاسم أو الكود
-    const matchesQuery = queryVal
-      ? pname.includes(queryVal) || pbarcode.includes(queryVal)
-      : true;
+    const matchesQuery = queryVal ? pname.includes(queryVal) || pbarcode.includes(queryVal) : true;
 
     // يطابق تاريخ الانتهاء إذا موجود
     const matchesExpiry = expiryVal
