@@ -1,0 +1,193 @@
+/* عام */
+html,
+body {
+  height: 100%;
+}
+body {
+  background: #f8f9fa;
+  min-height: 100vh;
+  display: flex;
+  overflow-x: hidden; /* منع overflow أفقي */
+  margin: 0;
+}
+
+/* SIDEBAR */
+#sidebar {
+  min-width: 220px;
+  max-width: 220px;
+  background: #343a40;
+  color: #fff;
+  transition:
+    left 0.3s ease,
+    transform 0.3s ease;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: -220px; /* مخفي افتراضيا على الموبايل */
+  z-index: 1000;
+  overflow-y: auto;
+}
+#sidebar.active {
+  left: 0;
+}
+#sidebar .nav-link {
+  color: #fff;
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  border-radius: 0.5rem;
+  margin-bottom: 5px;
+  transition: 0.25s;
+}
+#sidebar .nav-link i {
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+#sidebar .nav-link:hover {
+  background: #495057;
+  color: #0dcaf0;
+  transform: translateX(5px);
+}
+#sidebar .nav-link.active {
+  background: #0dcaf0;
+  color: #fff;
+}
+
+/* CONTENT */
+#content {
+  flex: 1;
+  padding: 20px;
+  margin-left: 0; /* يتغير عند وجود sidebar */
+  transition: margin-left 0.3s ease;
+  width: 100%;
+}
+/* عندما نضيف هذه الكلاس يتم دف المحتوى لليمين */
+.withSidebar {
+  margin-left: 220px !important;
+}
+
+/* زر القائمة للهواتف */
+#sidebarToggle {
+  display: inline-block;
+}
+
+/* نمط الأزرار وحقول الفورم */
+.form-control:focus {
+  box-shadow: none;
+  border-color: #0dcaf0;
+}
+.btn-submit {
+  background: #0dcaf0;
+  color: #fff;
+  border: none;
+}
+.btn-submit:hover {
+  background: #0bb8d9;
+}
+
+/* مَنع التعارض: لا تستخدم اسم .card العام كـ grid.
+         بدل ذلك استعمل .product-card مع bootstrap .card. */
+
+.product-card {
+  text-align: center;
+  transition:
+    transform 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out;
+  font-weight: 700;
+  text-transform: none;
+  padding: 0;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* صورة داخل بطاقة Bootstrap (card-img-top) */
+.product-card .card-img-top {
+  width: 100%;
+  height: 350px; /* ثابت بارتفاع مناسب */
+  display: block;
+}
+
+/* نصوص متجاوبة */
+.product-card .card-title {
+  font-size: clamp(16px, 2.4vw, 20px);
+  font-weight: 800;
+  color: #198754;
+  margin-bottom: 0.5rem;
+}
+.product-card .price {
+  font-size: clamp(14px, 2.1vw, 35px);
+  font-weight: 700;
+  color: #8a65db;
+  margin-bottom: 0.5rem;
+}
+.product-card .quantity {
+  font-size: clamp(12px, 1.8vw, 24px);
+  margin-bottom: 0.9rem;
+}
+.product-card .expiry {
+  font-size: clamp(12px, 1.8vw, 22px);
+  margin-bottom: 0.9rem;
+  color: red;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+/* شريط الباركود */
+.barcode {
+  width: 100%;
+  height: 90px;
+  margin-top: 8px;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+}
+.barcode img {
+  max-height: 80px;
+  max-width: 100%;
+}
+
+/* أزرار التعديل والحذف */
+.btn-edit,
+.btn-delete {
+  font-size: 0.9rem;
+  padding: 0.35rem 0.6rem;
+}
+
+/* تفاعل hover */
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+}
+
+/* استجابة الصور وارتفاعات أصغر على الشاشات الصغيرة */
+@media (max-width: 576px) {
+  .product-card .card-img-top {
+    height: 360px;
+  }
+  .barcode {
+    height: 70px;
+  }
+}
+
+/* عندما تكون الشاشة كبيرة، نُبقي sidebar مفتوحًا دائمًا */
+@media (min-width: 768px) {
+  #sidebar {
+    left: 0;
+  }
+  #sidebar.active {
+    left: 0;
+  }
+  #sidebarToggle {
+    display: none;
+  } /* إخفاء زر التبديل على ديسكتوب */
+}
+.forJoute {
+  display: none;
+}
+.activeAjoute {
+  display: block;
+}

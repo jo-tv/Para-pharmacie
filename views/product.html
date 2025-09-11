@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Catalogue Produits</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="css/admin.css"
+      type="text/css"
+      media="all"
+    />
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <nav
+      id="sidebar"
+      class="d-flex flex-column p-3"
+    >
+      <a
+        href="#"
+        class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none"
+      >
+        <i class="bi bi-heart-pulse-fill fs-4 me-2"></i>
+        <span class="fs-4">Parapharmacie</span>
+      </a>
+      <hr />
+      <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+          <a
+            href="/"
+            class="nav-link"
+            ><i class="bi bi-speedometer2"></i> Dashboard</a
+          >
+        </li>
+        <li>
+          <a
+            href="/ajouter"
+            class="nav-link"
+            ><i class="bi bi-box-seam"></i> Ajouter Produit</a
+          >
+        </li>
+        <li>
+          <a
+            href="/product"
+            class="nav-link active"
+            ><i class="bi bi-cart-check"></i> produit</a
+          >
+        </li>
+        <li>
+          <a
+            href="#"
+            class="nav-link"
+            ><i class="bi bi-people"></i> Clients</a
+          >
+        </li>
+        <li>
+          <a
+            href="#"
+            class="nav-link"
+            ><i class="bi bi-gear"></i> Paramètres</a
+          >
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div id="content">
+      <nav class="navbar navbar-light bg-light mb-4">
+        <div class="container-fluid">
+          <!-- زر القائمة للهواتف -->
+          <button
+            class="btn btn-outline-secondary d-md-none"
+            id="sidebarToggle"
+          >
+            ☰ Menu
+          </button>
+          <span class="navbar-brand mb-0 h1">💊 Catalogue Produits</span>
+        </div>
+      </nav>
+
+      <!-- أضف هذا القسم أعلى #productList -->
+      <div class="container mb-4">
+        <div class="row g-2 align-items-center">
+          <!-- بحث بالاسم أو الكود -->
+          <input
+            type="text"
+            id="searchQuery"
+            class="form-control"
+            placeholder="🔍 Nom ou Code produit..."
+          />
+
+          <!-- بحث بتاريخ الانتهاء -->
+          <label for="searchExpiry">🔍 Date d’expiration</label>
+          <input
+            type="date"
+            id="searchExpiry"
+            class="form-control"
+          />
+        </div>
+      </div>
+
+      <div
+        id="productList"
+        class="row g-4"
+      ></div>
+    </div>
+
+    <script>
+      // Sidebar
+      const sidebar = document.getElementById('sidebar');
+      const toggleBtn = document.getElementById('sidebarToggle');
+      const content = document.getElementById('content');
+
+      // عند الضغط على زر التبديل
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+          sidebar.classList.toggle('active');
+          content.classList.toggle('withSidebar');
+        });
+      }
+
+      // دالة التحكم في الواجهة حسب الشاشة
+      function handleResize() {
+        if (window.innerWidth >= 768) {
+          sidebar.classList.add('active');
+          content.classList.add('withSidebar');
+          if (toggleBtn) toggleBtn.style.display = 'none';
+        } else {
+          sidebar.classList.remove('active');
+          content.classList.remove('withSidebar');
+          if (toggleBtn) toggleBtn.style.display = 'inline-block';
+        }
+      }
+
+      window.addEventListener('load', handleResize);
+      window.addEventListener('resize', handleResize);
+
+      // تخزين كل المنتجات
+      let products = [];
+
+      // تحميل المنتجات من السيرفر
+      async function loadProducts() {
+        try {
+          const res = await fetch('http://localhost:5000/api/products');
+          products = await res.json();
+          renderProducts(products);
+        } catch (err) {
+          console.error('Erreur lors du chargement des produits:', err);
+        }
+      }
+
+      // عرض المنتجات
+      function renderProducts(list) {
+        const productList = document.getElementById('productList');
+        productList.innerHTML = '';
+
+        list.forEach((p) => {
+          const expiryDate = new Date(p.expiry).toLocaleDateString();
+
+          const card = document.createElement('div');
+          card.className = 'col-12 col-sm-6 col-md-4 col-lg-3';
+          card.innerHTML = `
+        <div class="card product-card h-100 d-flex flex-column">
+          <!-- صورة المنتج -->
+          <img src="${
+            p.image ||
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOQOzK3if8ubYIFpjwxQ8kf6D7XYHZfbhD-iMvupcsBQ&amp;s=10'
+          }"
+               class="card-img-top" alt="${p.name}" >
+          
+          <!-- معلومات المنتج -->
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title text-truncate">${p.name}</h5>
+            <p class="price"><span> Prix :</span> ${p.price} DH</p>
+            <p class="quantity">Quantité: ${p.quantity}</p>
+            <p class="expiry">Expiration: ${expiryDate}</p>
+
+          <div class="mt-auto text-center barcode">
+            <img src="https://barcode.tec-it.com/barcode.ashx?data=${
+              p.barcode
+            }&code=Code128&translate-esc=true&dpi=96&modulewidth=2&unit=Fit&imagetype=png"
+                 alt="Code-barre ${p.barcode}" class="img-fluid" style="max-height:130px;">
+          </div>
+          </div>
+        </div>
+      `;
+          productList.appendChild(card);
+        });
+      }
+
+      // عناصر البحث
+      const searchQuery = document.getElementById('searchQuery');
+      const searchExpiry = document.getElementById('searchExpiry');
+
+      function filterProducts() {
+        const query = searchQuery.value.toLowerCase().trim();
+        const expiryVal = searchExpiry.value; // YYYY-MM-DD من input[type=date]
+
+        const filtered = products.filter((p) => {
+          // فلترة بالاسم أو الكود
+          const matchesQuery =
+            !query ||
+            p.name.toLowerCase().includes(query) ||
+            p.barcode.toLowerCase().includes(query);
+
+          // فلترة بتاريخ الانتهاء
+          const matchesExpiry = expiryVal
+            ? new Date(p.expiry).toISOString().slice(0, 10) === expiryVal
+            : true;
+
+          return matchesQuery && matchesExpiry;
+        });
+
+        renderProducts(filtered);
+      }
+
+      // تشغيل البحث عند الكتابة أو اختيار التاريخ
+      searchQuery.addEventListener('input', filterProducts);
+      searchExpiry.addEventListener('input', filterProducts);
+
+      // تحميل المنتجات أول مرة
+      loadProducts();
+    </script>
+  </body>
+</html>
