@@ -338,6 +338,9 @@
           const totalProducts = products.length;
           const outOfStock = products.filter((p) => p.quantity === 0).length;
 
+          // عدد المنتجات كميتها بين 1 و 5
+const lowStock = products.filter(p => p.quantity > 0 && p.quantity <= 5).length;
+
           const today = new Date();
           const oneYearLater = new Date();
           oneYearLater.setFullYear(today.getFullYear() + 1);
@@ -362,6 +365,12 @@
               value: totalProducts,
               icon: 'bi-box-seam',
               color: 'bg-primary-light',
+            },
+            {
+              title: 'Stock Faible',
+              value: lowStock,
+              icon: 'bi-exclamation-circle',
+              color: 'bg-warning-light', // لون برتقالي
             },
             {
               title: 'Stock Épuisé',
@@ -392,20 +401,20 @@
           statsRow.innerHTML = '';
           stats.forEach((stat) => {
             statsRow.innerHTML += `
-        <div class="col-12 col-sm-6 col-lg-3">
-          <div class="card stat-card p-3 h-100">
-            <div class="d-flex align-items-center">
-              <div class="stat-icon ${stat.color} me-3">
-                <i class="bi ${stat.icon}"></i>
+              <div class="col-12 col-sm-6 col-lg-3">
+                <div class="card stat-card p-3 h-100">
+                  <div class="d-flex align-items-center">
+                    <div class="stat-icon ${stat.color} me-3">
+                      <i class="bi ${stat.icon}"></i>
+                    </div>
+                    <div>
+                      <h6 class="text-muted">${stat.title}</h6>
+                      <h4 class="mb-0">${stat.value}</h4>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div>
-                <h6 class="text-muted">${stat.title}</h6>
-                <h4 class="mb-0">${stat.value}</h4>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
+            `;
           });
 
           // ====== Fill Expired / Almost Expired Products Table ======
@@ -422,39 +431,39 @@
                   rowClass = 'table-warning fw-bold'; // قريبة من الانتهاء: أصفر/برتقالي و عريض
               }
               tableBody.innerHTML += `
-          <tr class="${rowClass}">
-            <td>${index + 1}</td>
-            <td>${p.name}</td>
-            <td>${p.barcode || '—'}</td>
-            <td>${p.quantity}</td>
-            <td>${p.price.toFixed(2)}</td>
-            <td>${expiryDate ? expiryDate.toLocaleDateString() : '—'}</td>
-          </tr>
-        `;
+                <tr class="${rowClass}">
+                  <td>${index + 1}</td>
+                  <td>${p.name}</td>
+                  <td>${p.barcode || '—'}</td>
+                  <td>${p.quantity}</td>
+                  <td>${p.price.toFixed(2)}</td>
+                  <td>${expiryDate ? expiryDate.toLocaleDateString() : '—'}</td>
+                </tr>
+              `;
             });
           }
-          
+
           // ====== Fill Low Stock Products Table ======
-const lowStockTbody = document.querySelector('#lowStockTable tbody');
-if (lowStockTbody) {
-  lowStockTbody.innerHTML = '';
-  products.forEach((p, index) => {
-    if (p.quantity <= 5) {
-      let rowClass = '';
-      if (p.quantity === 0) rowClass = 'table-danger fw-bold'; // مخزون 0: أحمر
-      else rowClass = 'table-warning fw-bold'; // أقل من 5: برتقالي
-      lowStockTbody.innerHTML += `
-        <tr class="${rowClass}">
-          <td>${index + 1}</td>
-          <td>${p.name}</td>
-          <td>${p.barcode || '—'}</td>
-          <td>${p.quantity}</td>
-          <td>${p.price.toFixed(2)}</td>
-        </tr>
-      `;
-    }
-  });
-}
+          const lowStockTbody = document.querySelector('#lowStockTable tbody');
+          if (lowStockTbody) {
+            lowStockTbody.innerHTML = '';
+            products.forEach((p, index) => {
+              if (p.quantity <= 5) {
+                let rowClass = '';
+                if (p.quantity === 0) rowClass = 'table-danger fw-bold'; // مخزون 0: أحمر
+                else rowClass = 'table-warning fw-bold'; // أقل من 5: برتقالي
+                lowStockTbody.innerHTML += `
+              <tr class="${rowClass}">
+                <td>${index + 1}</td>
+                <td>${p.name}</td>
+                <td>${p.barcode || '—'}</td>
+                <td>${p.quantity}</td>
+                <td>${p.price.toFixed(2)}</td>
+              </tr>
+            `;
+              }
+            });
+          }
 
           // ===== Charts =====
           renderCharts(products);
