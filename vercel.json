@@ -12,10 +12,4 @@
       "dest": "/index.js"
     }
   ],
-  "env": {
-    "DB_USER": "@db_user",
-    "DB_PASS": "@db_pass",
-    "DB_CLUSTER": "@db_cluster",
-    "DB_NAME": "@db_name"
-  }
 }
