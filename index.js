@@ -15,16 +15,18 @@ app.use('/uploads', express.static('uploads'));
 // ميدل وير لقراءة ملفات static
 app.use(express.static(path.join(__dirname, 'public')));
 
-// اتصال بقاعدة البيانات
-import dotenv from 'dotenv';
-dotenv.config();
 
+
+// الاتصال بقاعدة بيانات MongoDB
 async function connectToDatabase() {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log('✅ CONNECTED TO DATABASE');
+    await mongoose.connect(
+      'mongodb+srv://josefuccef7:gHkpeNOLUzOvawuh@cluster0.qmwgw.mongodb.net/alldata?retryWrites=true&w=majority&appName=Cluster0'
+    );
+
+    console.log('CONNCET TO DATABASE');
   } catch (error) {
-    console.error('❌ ERROR CONNECTING TO DATABASE:', error.message);
+    console.error('ERROR CONNECTING TO DATABASE:', error.message);
   }
 }
 
