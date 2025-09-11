@@ -74,32 +74,27 @@ function renderProducts(list = products) {
 
     // بطاقة Bootstrap: نحافظ على هيكل البطاقات لديك
     const cardHtml = `
-            <div class="card product-card">
-              <img src="${
-                p.image ||
-                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOQOzK3if8ubYIFpjwxQ8kf6D7XYHZfbhD-iMvupcsBQ&amp;s=10'
-              }"
-                   class="card-img-top" alt="${escapeHtml(p.name || 'Produit')}">
-              <div class="card-body d-flex flex-column">
-                <h5 class="card-title text-truncate">${escapeHtml(p.name || '')}</h5>
-                <p class="price">${p.price !== undefined ? p.price + ' DH' : '-'}</p>
-                <p class="quantity">Quantité: <span class="qty">${p.quantity ?? '-'}</span></p>
-                <p class="expiry">Expiration: ${expiryDate}</p>
+<div class="card product-card">
+  <img src="${p.image || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOQOzK3if8ubYIFpjwxQ8kf6D7XYHZfbhD-iMvupcsBQ&amp;s=10'}"
+       class="card-img-top" alt="${escapeHtml(p.name || 'Produit')}">
+  <div class="card-body d-flex flex-column">
+    <h5 class="card-title text-truncate">${escapeHtml(p.name || '')}</h5>
+    <p class="price">${p.price !== undefined ? p.price + ' DH' : '-'}</p>
+    <p class="quantity">Quantité: <span class="qty">${p.quantity ?? '-'}</span></p>
+    <p class="expiry">Expiration: ${expiryDate}</p>
 
-                <div class="mt-auto text-center barcode">
-                  <img src="https://barcode.tec-it.com/barcode.ashx?data=${encodeURIComponent(
-                    p.barcode ?? ''
-                  )}&code=Code128&translate-esc=true&dpi=96&modulewidth=2&unit=Fit&imagetype=png"
-                       alt="Code-barre ${escapeHtml(String(p.barcode ?? ''))}" class="img-fluid">
-                </div>
+    <div class="mt-auto text-center barcode">
+      <img src="https://barcode.tec-it.com/barcode.ashx?data=${encodeURIComponent(p.barcode ?? '')}&code=Code128&translate-esc=true&dpi=96&modulewidth=2&unit=Fit&imagetype=png"
+           alt="Code-barre ${escapeHtml(String(p.barcode ?? ''))}" class="img-fluid">
+    </div>
 
-                <div class="d-flex gap-2 mt-3">
-                  <button class="btn btn-primary btn-edit flex-fill">Modifier</button>
-                  <button class="btn btn-danger btn-delete flex-fill">Supprimer</button>
-                </div>
-              </div>
-            </div>
-          `;
+    <div class="d-flex gap-2 mt-3">
+      <button class="btn btn-primary btn-edit flex-fill">Modifier</button>
+      <button class="btn btn-danger btn-delete flex-fill">Supprimer</button>
+    </div>
+  </div>
+</div>
+`;
 
     col.innerHTML = cardHtml;
     productList.appendChild(col);
@@ -157,24 +152,13 @@ if (form) {
     let imageUrl = '';
 
     if (file) {
-      const formData = new FormData();
-      formData.append('image', file);
-
-      try {
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-        const data = await res.json();
-        if (res.ok) {
-          imageUrl = data.url || '';
-        } else {
-          alert('Erreur lors de l’upload de l’image');
-        }
-      } catch (err) {
-        console.error(err);
-        alert('Erreur lors de l’upload de l’image');
-      }
+      // 🔹 تحويل الصورة إلى Base64
+      imageUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
     }
 
     const newProduct = {
@@ -183,7 +167,7 @@ if (form) {
       price: parseFloat(document.getElementById('price').value) || 0,
       quantity: parseInt(document.getElementById('quantity').value) || 0,
       expiry: document.getElementById('expiry').value,
-      image: imageUrl,
+      image: imageUrl, // الآن Base64 string
     };
 
     try {

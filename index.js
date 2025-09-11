@@ -38,14 +38,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// POST /api/upload
-app.post('/api/upload', upload.single('image'), (req, res) => {
-  if (!req.file) return res.status(400).json({ ok: false, message: 'Aucune image reçue' });
-
-  const url = `/uploads/${req.file.filename}`;
-  res.json({ ok: true, url });
-});
-
 // 📄 عرض صفحة index.html
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'Dashboard.html'));
@@ -60,12 +52,21 @@ app.get('/ajouter', (req, res) => {
 // 🟢 API: جلب كل المنتجات
 app.get('/api/products', async (req, res) => {
   try {
-    const products = await Product.find().lean(); // .lean() لتحويل النتائج لقيم JS عادية
+    // جلب المنتجات مع ترتيب الأحدث أولاً
+    const products = await Product.find().sort({ createdAt: -1 }).lean();
     res.json(products);
   } catch (err) {
     console.error('❌ Error while fetching products:', err.message);
     res.status(500).json({ error: err.message });
   }
+});
+
+// POST /api/upload
+app.post('/api/upload', upload.single('image'), (req, res) => {
+  if (!req.file) return res.status(400).json({ ok: false, message: 'Aucune image reçue' });
+
+  const url = `/uploads/${req.file.filename}`;
+  res.json({ ok: true, url });
 });
 
 // 🟢 API: إضافة منتج جديد
@@ -90,19 +91,19 @@ app.post('/api/products', async (req, res) => {
       _id: newProduct._id,
     });
   } catch (err) {
-  // 🟢 التحقق من خطأ تكرار الـ barcode
-  if (err.code === 11000 && err.keyPattern?.barcode) {
-    return res.status(400).json({
-      error: `Le code-barres "${req.body.barcode}" existe déjà. Veuillez utiliser un code-barres unique. ❌`
+    // 🟢 التحقق من خطأ تكرار الـ barcode
+    if (err.code === 11000 && err.keyPattern?.barcode) {
+      return res.status(400).json({
+        error: `Le code-barres "${req.body.barcode}" existe déjà. Veuillez utiliser un code-barres unique. ❌`,
+      });
+    }
+
+    // باقي الأخطاء
+    console.error('❌ Error while adding product:', err);
+    res.status(400).json({
+      error: 'Erreur lors de l’ajout du produit. Veuillez vérifier vos données et réessayer.',
     });
   }
-
-  // باقي الأخطاء
-  console.error('❌ Error while adding product:', err);
-  res.status(400).json({
-    error: 'Erreur lors de l’ajout du produit. Veuillez vérifier vos données et réessayer.'
-  });
-}
 });
 
 // 🟢 API: بيع منتج (إنقاص كمية)
