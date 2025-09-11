@@ -4,7 +4,6 @@ import cors from 'cors';
 import path from 'path';
 import multer from 'multer';
 import { fileURLToPath } from 'url';
-import Product from './models/Product.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -46,6 +45,17 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
   res.json({ ok: true, url });
 });
 
+// نموذج المنتج
+const productSchema = new mongoose.Schema({
+  name: String,
+  barcode: String,
+  price: Number,
+  quantity: Number,
+  expiry: Date,
+  image: String,
+});
+const Product = mongoose.model('Product', productSchema);
+
 // 📄 عرض صفحة index.html
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'Dashboard.html'));
@@ -71,38 +81,13 @@ app.get('/api/products', async (req, res) => {
 // 🟢 API: إضافة منتج جديد
 app.post('/api/products', async (req, res) => {
   try {
-    const { name, barcode, price, quantity, expiry, image } = req.body;
-
-    // ننشئ المنتج
-    const newProduct = new Product({
-      name,
-      barcode,
-      price,
-      quantity,
-      expiry,
-      image, // هذا سيكون Base64 string
-    });
-
+    const newProduct = new Product(req.body);
     await newProduct.save();
-
-    res.json({
-      message: 'Produit ajouté avec succès ✅',
-      _id: newProduct._id,
-    });
+    res.json({ message: 'Produit ajouté avec succès ✅' });
   } catch (err) {
-  // 🟢 التحقق من خطأ تكرار الـ barcode
-  if (err.code === 11000 && err.keyPattern?.barcode) {
-    return res.status(400).json({
-      error: `Le code-barres "${req.body.barcode}" existe déjà. Veuillez utiliser un code-barres unique. ❌`
-    });
+    console.error('❌ Error while adding product:', err.message);
+    res.status(400).json({ error: err.message });
   }
-
-  // باقي الأخطاء
-  console.error('❌ Error while adding product:', err);
-  res.status(400).json({
-    error: 'Erreur lors de l’ajout du produit. Veuillez vérifier vos données et réessayer.'
-  });
-}
 });
 
 // 🟢 API: بيع منتج (إنقاص كمية)
