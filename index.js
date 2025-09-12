@@ -48,8 +48,8 @@ app.get('/product', (req, res) => {
 app.get('/ajouter', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'admin.html'));
 });
-app.get('/test', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'Test.html'));
+app.get('/caisse', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'caisse.html'));
 });
 
 // 🟢 API: جلب كل المنتجات
@@ -61,6 +61,20 @@ app.get('/api/products', async (req, res) => {
   } catch (err) {
     console.error('❌ Error while fetching products:', err.message);
     res.status(500).json({ error: err.message });
+  }
+});
+
+// البحث في قاعدة البيانات
+app.get('/api/products/search', async (req, res) => {
+  const q = req.query.q;
+  try {
+    const product = await Product.findOne({
+      $or: [{ barcode: q }, { name: { $regex: q, $options: 'i' } }],
+    });
+    if (product) res.json(product);
+    else res.json({});
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur serveur' });
   }
 });
 
