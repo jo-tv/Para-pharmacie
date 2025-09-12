@@ -32,16 +32,17 @@ body {
 }
 #sidebar .nav-link {
   color: #fff;
-  display: flex;
-  align-items: center;
-  padding: 10px 15px;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 900;
   border-radius: 0.5rem;
-  margin-bottom: 5px;
+  margin-bottom: 15px;
+  text-transform: uppercase;
   transition: 0.25s;
 }
 #sidebar .nav-link i {
   margin-right: 10px;
-  font-size: 1.2rem;
+  font-size: 25px;
 }
 #sidebar .nav-link:hover {
   background: #495057;
@@ -173,8 +174,14 @@ body {
 
 /* استجابة الصور وارتفاعات أصغر على الشاشات الصغيرة */
 @media (max-width: 576px) {
+  .product-card {
+    width: 90%;
+    margin: 10px auto;
+  }
   .product-card .card-img-top {
-    height: 150px;
+    height: 200px;
+    width: 250px;
+    margin: 0 auto;
   }
   .barcode {
     height: 70px;
