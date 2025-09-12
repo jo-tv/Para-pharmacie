@@ -102,6 +102,7 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;
 }
 
 /* صورة داخل بطاقة Bootstrap (card-img-top) */
@@ -109,28 +110,28 @@ body {
   width: 100%;
   height: 350px; /* ثابت بارتفاع مناسب */
   display: block;
+  box-shadow:
+    rgba(0, 0, 0, 0.4) 0px 2px 4px,
+    rgba(0, 0, 0, 0.3) 0px 7px 13px -3px,
+    rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
 }
 
 /* نصوص متجاوبة */
 .product-card .card-title {
-  font-size: clamp(16px, 2.4vw, 18px);
+  font-size: 17px;
   font-weight: 800;
   color: #198754;
-  margin-bottom: 0.5rem;
 }
 .product-card .price {
-  font-size: clamp(14px, 2.1vw, 27px);
+  font-size: 17px;
   font-weight: 700;
   color: #8a65db;
-  margin-bottom: 0.5rem;
 }
 .product-card .quantity {
-  font-size: clamp(12px, 1.8vw, 18px);
-  margin-bottom: 0.9rem;
+  font-size: 17px;
 }
 .product-card .expiry {
-  font-size: clamp(12px, 1.8vw, 17px);
-  margin-bottom: 0.9rem;
+  font-size: 17px;
   color: red;
   font-weight: 900;
   letter-spacing: 1px;
@@ -148,6 +149,12 @@ body {
 .barcode img {
   max-height: 80px;
   max-width: 100%;
+  box-shadow:
+    rgba(6, 24, 44, 0.4) 0px 0px 0px 2px,
+    rgba(6, 24, 44, 0.65) 0px 4px 6px -1px,
+    rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
+  padding: 5px;
+  border-radius: 10px;
 }
 
 /* أزرار التعديل والحذف */
@@ -155,6 +162,7 @@ body {
 .btn-delete {
   font-size: 0.9rem;
   padding: 0.35rem 0.6rem;
+  box-shadow: rgba(0, 0, 0, 0.45) 0px 25px 20px -20px;
 }
 
 /* تفاعل hover */
@@ -184,6 +192,25 @@ body {
   #sidebarToggle {
     display: none;
   } /* إخفاء زر التبديل على ديسكتوب */
+  .product-card {
+    height: 400px;
+  }
+  .product-card .expiry,
+  .product-card .card-title,
+  .product-card .quantity,
+  .product-card .price {
+    font-size: 13px;
+    font-weight: 800;
+  }
+  .product-card .card-img-top {
+    width: 100%;
+    height: 100px; /* ثابت بارتفاع مناسب */
+    display: block;
+  }
+  .barcode img {
+    max-height: 80px;
+    max-width: 100%;
+  }
 }
 .forJoute {
   display: none;

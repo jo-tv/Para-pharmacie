@@ -75,7 +75,10 @@ function renderProducts(list = products) {
     // بطاقة Bootstrap: نحافظ على هيكل البطاقات لديك
     const cardHtml = `
 <div class="card product-card">
-  <img src="${p.image || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOQOzK3if8ubYIFpjwxQ8kf6D7XYHZfbhD-iMvupcsBQ&amp;s=10'}"
+  <img src="${
+    p.image ||
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOQOzK3if8ubYIFpjwxQ8kf6D7XYHZfbhD-iMvupcsBQ&amp;s=10'
+  }"
        class="card-img-top" alt="${escapeHtml(p.name || 'Produit')}">
   <div class="card-body d-flex flex-column">
     <h5 class="card-title text-truncate">${escapeHtml(p.name || '')}</h5>
@@ -84,7 +87,9 @@ function renderProducts(list = products) {
     <p class="expiry">Expiration: ${expiryDate}</p>
 
     <div class="mt-auto text-center barcode">
-      <img src="https://barcode.tec-it.com/barcode.ashx?data=${encodeURIComponent(p.barcode ?? '')}&code=Code128&translate-esc=true&dpi=96&modulewidth=2&unit=Fit&imagetype=png"
+      <img src="https://barcode.tec-it.com/barcode.ashx?data=${encodeURIComponent(
+        p.barcode ?? ''
+      )}&code=Code128&translate-esc=true&dpi=96&modulewidth=2&unit=Fit&imagetype=png"
            alt="Code-barre ${escapeHtml(String(p.barcode ?? ''))}" class="img-fluid">
     </div>
 
@@ -110,6 +115,7 @@ function renderProducts(list = products) {
         document.getElementById('editName').value = p.name || '';
         document.getElementById('editPrice').value = p.price || 0;
         document.getElementById('editQuantity').value = p.quantity || 0;
+        document.getElementById('editBarcode').value = p.barcode || 0;
         document.getElementById('editExpiry').value = p.expiry
           ? new Date(p.expiry).toISOString().slice(0, 10)
           : '';

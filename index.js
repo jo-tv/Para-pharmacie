@@ -48,6 +48,9 @@ app.get('/product', (req, res) => {
 app.get('/ajouter', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'admin.html'));
 });
+app.get('/test', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'Test.html'));
+});
 
 // 🟢 API: جلب كل المنتجات
 app.get('/api/products', async (req, res) => {
