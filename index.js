@@ -4,6 +4,7 @@ import cors from 'cors';
 import path from 'path';
 import multer from 'multer';
 import { fileURLToPath } from 'url';
+import serverless from 'serverless-http';
 
 import productRoutes from './routes/products.js'; // ✅ routes ديال المنتجات
 import salesRoutes from './routes/sales.js'; // ✅ routes ديال المبيعات
@@ -28,6 +29,7 @@ mongoose
 // Routers
 app.use('/', productRoutes);
 app.use('/sales', salesRoutes);
+export const handler = serverless(app);
 
 app.listen(5000, () => {
   console.log('🚀 Backend running on port 5000');
