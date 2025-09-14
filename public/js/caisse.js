@@ -147,7 +147,7 @@ document.getElementById('confirm-sale').addEventListener('click', async () => {
   };
 
   try {
-    const res = await fetch('sales/api/vente', {
+    const res = await fetch('/api/vente', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(saleData),
