@@ -100,24 +100,37 @@ async function loadProducts(forceReload = false) {
 // =======================
 async function syncProducts() {
   try {
-    const res = await fetch('/api/products');
-    if (!res.ok) throw new Error('Failed to fetch products');
-    const allServerProducts = await res.json();
+    const lastSync = localStorage.getItem('lastSync') || new Date(0).toISOString();
+    const res = await fetch(`/api/products/updates?lastSync=${encodeURIComponent(lastSync)}`);
+    if (!res.ok) throw new Error('Failed to fetch updates');
 
-    products = allServerProducts.sort(
-      (a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt)
-    );
+    const updates = await res.json();
+    if (updates.length > 0) {
+      let products = JSON.parse(localStorage.getItem('productsData')) || [];
+      updates.forEach((p) => {
+        const index = products.findIndex((prod) => prod._id === p._id);
+        if (index !== -1) products[index] = p;
+        else products.unshift(p);
+      });
 
-    localStorage.setItem('productsData', JSON.stringify(products));
+      localStorage.setItem('productsData', JSON.stringify(products));
+      renderProducts(products);
+    }
+
     localStorage.setItem('lastSync', new Date().toISOString());
-
-    renderProducts(products);
-
-    console.log(`✅ المزامنة التلقائية اكتملت. تم تحديث البيانات (${products.length} منتج).`);
+    console.log(`✅ ${updates.length} produits mis à jour.`);
   } catch (err) {
-    console.error('❌ Erreur lors de la synchronisation automatique:', err);
+    console.error('❌ Error during sync:', err);
   }
 }
+
+// استدعاء أولي ومتابعة كل 30 ثانية
+syncProducts();
+setInterval(syncProducts, 30 * 1000);
+
+
+// استدعاء أولي عند تحميل الصفحة
+syncProducts();
 
 // =======================
 // عرض المنتجات
@@ -128,17 +141,19 @@ async function syncProducts() {
 function renderProducts(list) {
   const tbody = document.getElementById('productsBody');
   // بناء محتوى الصفوف كـ HTML واحد
-  const rowsHtml = list.map(p => {
-    const expiryDate = p.expiry ? new Date(p.expiry).toLocaleDateString() : '—';
-    const highlightClass = p._isNew ? 'table-success' : '';
-    return `<tr class="${highlightClass}">
+  const rowsHtml = list
+    .map((p) => {
+      const expiryDate = p.expiry ? new Date(p.expiry).toLocaleDateString() : '—';
+      const highlightClass = p._isNew ? 'table-success' : '';
+      return `<tr class="${highlightClass}">
               <td>${p.name}</td>
               <td>${p.price} DH</td>
               <td>${p.quantity}</td>
               <td>${expiryDate}</td>
               <td>${p.barcode}</td>
             </tr>`;
-  }).join('');
+    })
+    .join('');
   tbody.innerHTML = rowsHtml;
 
   // إعادة تهيئة DataTables فقط إذا كانت غير مهيأة
@@ -146,7 +161,7 @@ function renderProducts(list) {
     dataTableInstance.destroy();
     dataTableInstance = null;
   }
-  
+
   dataTableInstance = $('#productsTable').DataTable({
     responsive: true,
     pageLength: 20,
@@ -195,4 +210,3 @@ function reloadProducts() {
 // التحميل الأولي + مزامنة تلقائية
 // =======================
 loadProducts();
-setInterval(syncProducts, 30 * 1000);

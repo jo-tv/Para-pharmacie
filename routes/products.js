@@ -1,59 +1,37 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import cors from 'cors';
-import path from 'path';
+// routes/sales.js
 import multer from 'multer';
+import express from 'express';
+import Product from '../models/Product.js';
 import { fileURLToPath } from 'url';
-import Product from './models/Product.js';
+import path from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
-const app = express();
-app.use(cors());
-app.use(express.json());
-app.use('/uploads', express.static('uploads'));
-// ميدل وير لقراءة ملفات static
-app.use(express.static(path.join(__dirname, 'public')));
+const router = express.Router();
 
-// الاتصال بقاعدة بيانات MongoDB
-async function connectToDatabase() {
-  try {
-    await mongoose.connect(
-      'mongodb+srv://josefuccef7:gHkpeNOLUzOvawuh@cluster0.qmwgw.mongodb.net/alldata?retryWrites=true&w=majority&appName=Cluster0'
-    );
-
-    console.log('CONNCET TO DATABASE');
-  } catch (error) {
-    console.error('ERROR CONNECTING TO DATABASE:', error.message);
-  }
-}
-
-connectToDatabase();
-// تحديد مجلد التخزين
+// إعداد multer لرفع الملفات
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'), // مجلد uploads
+  destination: (req, file, cb) => cb(null, 'uploads/'),
   filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
 });
-
 const upload = multer({ storage });
 
 // 📄 عرض صفحة index.html
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'Dashboard.html'));
+router.get('/', (req, res) => {
+  res.sendFile(path.join(process.cwd(), 'views', 'Dashboard.html'));
 });
-app.get('/product', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'product.html'));
+router.get('/product', (req, res) => {
+  res.sendFile(path.join(process.cwd(), 'views', 'product.html'));
 });
-app.get('/ajouter', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'admin.html'));
+router.get('/ajouter', (req, res) => {
+  res.sendFile(path.join(process.cwd(), 'views', 'admin.html'));
 });
-app.get('/caisse', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'caisse.html'));
+router.get('/caisse', (req, res) => {
+  res.sendFile(path.join(process.cwd(), 'views', 'caisse.html'));
 });
 
 // جلب كل المنتجات
-app.get('/api/products', async (req, res) => {
+router.get('/api/products', async (req, res) => {
   const { page = 1, limit = 100 } = req.query; // افتراضي: 100 منتج
   try {
     const products = await Product.find()
@@ -69,7 +47,7 @@ app.get('/api/products', async (req, res) => {
 });
 
 // جلب المنتجات الجديدة فقط منذ آخر مزامنة
-app.get('/api/products/updates', async (req, res) => {
+router.get('/api/products/updates', async (req, res) => {
   try {
     const { lastSync } = req.query;
     if (!lastSync) return res.status(400).json({ error: 'lastSync required' });
@@ -86,7 +64,7 @@ app.get('/api/products/updates', async (req, res) => {
 });
 
 // البحث في قاعدة البيانات
-app.get('/api/products/search', async (req, res) => {
+router.get('/api/products/search', async (req, res) => {
   const q = req.query.q;
   if (!q) return res.json({}); // إذا لم يرسل المستخدم شيء
 
@@ -101,7 +79,7 @@ app.get('/api/products/search', async (req, res) => {
 });
 
 // POST /api/upload
-app.post('/api/upload', upload.single('image'), (req, res) => {
+router.post('/api/upload', upload.single('image'), (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -138,7 +116,7 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
 });
 
 // 🟢 API: إضافة منتج جديد
-app.post('/api/products', async (req, res) => {
+router.post('/api/products', async (req, res) => {
   try {
     const { name, barcode, price, quantity, expiry, image } = req.body;
 
@@ -174,26 +152,8 @@ app.post('/api/products', async (req, res) => {
   }
 });
 
-// 🟢 API: بيع منتج (إنقاص كمية)
-app.post('/api/sell/:id', async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
-    if (!product) return res.status(404).json({ error: 'Produit non trouvé' });
-
-    if (product.quantity > 0) {
-      product.quantity -= 1;
-      await product.save();
-      res.json({ message: 'Vente effectuée ✅', product });
-    } else {
-      res.json({ message: 'Stock épuisé ❌' });
-    }
-  } catch (err) {
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
-});
-
 // DELETE /api/products/:id
-app.delete('/api/products/:id', async (req, res) => {
+router.delete('/api/products/:id', async (req, res) => {
   const { id } = req.params;
   try {
     const deleted = await Product.findByIdAndDelete(id);
@@ -208,14 +168,14 @@ app.delete('/api/products/:id', async (req, res) => {
 });
 
 // PUT /api/products/:id
-app.put('/api/products/:id', async (req, res) => {
+router.put('/api/products/:id', async (req, res) => {
   const { id } = req.params;
   const { name, price, quantity, barcode, expiry } = req.body;
 
   try {
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
-      { name, price, quantity,barcode, expiry },
+      { name, price, quantity, barcode, expiry },
       { new: true, runValidators: true } // لإرجاع المنتج بعد التحديث
     );
 
@@ -230,6 +190,4 @@ app.put('/api/products/:id', async (req, res) => {
   }
 });
 
-app.listen(5000, () => {
-  console.log('🚀 Backend running on ');
-});
+export default router;

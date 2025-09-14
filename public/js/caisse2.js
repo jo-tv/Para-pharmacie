@@ -16,7 +16,7 @@ searchInput.addEventListener('change', async () => {
 
     if (product && product._id) {
       addToFacture(product);
-      updateFactureTotals();
+       updateFactureTotals();
       searchInput.value = '';
     } else {
       alert('Produit introuvable ❌');
@@ -117,60 +117,28 @@ function loadFactureFromStorage() {
   if (saved) {
     factureItems = JSON.parse(saved);
     renderFacture();
+    
   }
 }
 
 // زر لتأكيد المبيعة -->
-document.getElementById('confirm-sale').addEventListener('click', async () => {
+document.getElementById('confirm-sale').addEventListener('click', () => {
   if (factureItems.length === 0) {
     alert('⚠️ Aucune produit dans la facture !');
     return;
   }
 
-  if (!confirm('Voulez-vous confirmer cette vente ?')) return;
+  if (confirm('Voulez-vous confirmer cette vente ?')) {
+    // هنا ممكن ترسل الفاتورة للـ backend
+    console.log('Facture confirmée :', factureItems);
 
-  // استخدام تاريخ صالح لـ MongoDB
-  const now = new Date();
-
-  // تجهيز البيانات للإرسال
-  const saleData = {
-  items: factureItems.map(i => ({
-    _id: i._id,
-    name: i.name,
-    price: i.price,
-    qty: i.qty,
-    barcode: i.barcode
-  })),
-  totalHT: factureItems.reduce((sum, i) => sum + i.price * i.qty, 0),
-  totalTTC: factureItems.reduce((sum, i) => sum + i.price * i.qty, 0) * 1.2,
-  date: new Date().toISOString() // ✅ تاريخ صالح
-};
-
-  try {
-    const res = await fetch('/api/sales', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(saleData),
-    });
-
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData?.message || 'Erreur lors de l’envoi au serveur');
-    }
-
-    const result = await res.json();
-    console.log('✅ Vente sauvegardée en base:', result);
-
-    // مسح التخزين المحلي
+    // مسح التخزين
     factureItems = [];
     saveFactureToStorage();
     renderFacture();
     updateFactureTotals();
 
-    alert('✅ Vente confirmée et sauvegardée avec succès !');
-  } catch (err) {
-    console.error('❌ Erreur enregistrement vente:', err);
-    alert(`Erreur lors de la sauvegarde en base ❌\n${err.message}`);
+    alert('✅ Vente confirmée avec succès !');
   }
 });
 
