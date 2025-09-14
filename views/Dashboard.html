@@ -1,4 +1,5 @@
 <!doctype html>
+
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
@@ -15,120 +16,14 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
       rel="stylesheet"
     />
-    <style>
-      body {
-        background: #f8f9fa;
-        min-height: 100vh;
-        margin: 0;
-        display: flex;
-        overflow-x: hidden;
-      }
-      #sidebar {
-        min-width: 220px;
-        max-width: 220px;
-        background: #343a40;
-        color: #fff;
-        height: 100vh;
-        position: fixed;
-        top: 0;
-        left: -220px;
-        z-index: 1000;
-        transition: left 0.3s ease;
-        overflow-y: auto;
-      }
-      #sidebar.active {
-        left: 0;
-      }
-      #sidebar .nav-link {
-        color: #fff;
-        padding: 10px;
-        font-size: 13px;
-        font-weight: 900;
-        border-radius: 0.5rem;
-        margin-bottom: 10px;
-        text-transform: uppercase;
-        transition: 0.25s;
-      }
-      #sidebar .nav-link i {
-        margin-right: 10px;
-        font-size: 20px;
-      }
-      #sidebar .nav-link:hover {
-        background: #495057;
-        color: #0dcaf0;
-        transform: translateX(5px);
-      }
-      #sidebar .nav-link.active {
-        background: #0dcaf0;
-        color: #fff;
-      }
-      #content {
-        flex: 1;
-        padding: 20px;
-        margin-left: 0;
-        transition: margin-left 0.3s ease;
-        width: 100%;
-      }
-      .withSidebar {
-        margin-left: 220px !important;
-      }
-      #sidebarToggle {
-        display: inline-block;
-      }
-      @media (min-width: 768px) {
-        #sidebar {
-          left: 0;
-        }
-        #sidebarToggle {
-          display: none;
-        }
-      }
-
-      /* Cards */
-      .stat-card {
-        border-radius: 1rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s ease;
-      }
-      .stat-card:hover {
-        transform: translateY(-5px);
-      }
-      .stat-icon {
-        width: 9rem;
-        font-size: 3rem;
-        padding: 15px;
-        border-radius: 0.75rem;
-        color: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .bg-primary-light {
-        background-color: #0d6efd;
-      }
-      .bg-success-light {
-        background-color: #198754;
-      }
-      .bg-danger-light {
-        background-color: #dc3545;
-      }
-      .bg-warning-light {
-        background-color: #ffc107;
-        color: #000;
-      }
-      .chart {
-        height: 670px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-      }
-      .tableChart {
-        box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-        margin-bottom: 20px;
-        text-align: center;
-      }
-    </style>
+    <link
+      rel="stylesheet"
+      href="css/Dashboard.css"
+      type="text/css"
+      media="all"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
     <!-- Sidebar -->
@@ -189,7 +84,6 @@
         </li>
       </ul>
     </nav>
-
     <!-- Content -->
     <div id="content">
       <nav class="navbar navbar-light bg-light mb-4">
@@ -232,370 +126,74 @@
             </div>
           </div>
         </div>
-
         <!-- Expired Products Table -->
-        <div class="row mt-4">
-          <div class="col-12">
-            <div class="card p-3 tableChart">
-              <h5 class="mb-3"><i class="bi bi-exclamation-circle-fill"></i> Produits Expirés</h5>
-              <div class="table-responsive">
-                <table
-                  class="table table-striped table-bordered"
-                  id="expiredProductsTable"
-                >
-                  <thead class="table-dark">
-                    <tr>
-                      <th>#</th>
-                      <th>Nom</th>
-                      <th>Code</th>
-                      <th>Quantité</th>
-                      <th>Prix (DH)</th>
-                      <th>Date d'expiration</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <!-- Les lignes seront ajoutées dynamiquement -->
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div class="card p-3 tableChart">
-              <h5 class="mb-3">
-                <i class="bi bi-exclamation-triangle-fill"></i> Produits en Stock Faible
-              </h5>
-              <div class="table-responsive">
-                <table
-                  class="table table-striped table-bordered"
-                  id="lowStockTable"
-                >
-                  <thead class="table-dark">
-                    <tr>
-                      <th>#</th>
-                      <th>Nom</th>
-                      <th>Code</th>
-                      <th>Quantité</th>
-                      <th>Prix (DH)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <!-- Les lignes seront ajoutées dynamiquement -->
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Modal Bootstrap -->
-    <div
-      class="modal fade"
-      id="productModal"
-      tabindex="-1"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header bg-primary text-white">
-            <h5 class="modal-title"><i class="bi bi-box-seam"></i> Détails Produit</h5>
-            <button
-              type="button"
-              class="btn-close btn-close-white"
-              data-bs-dismiss="modal"
-              aria-label="Fermer"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <p><strong>Nom complet:</strong> <span id="modalName"></span></p>
-            <p><strong>Code produit:</strong> <span id="modalCode"></span></p>
-            <p><strong>Quantité:</strong> <span id="modalQuantity"></span></p>
-            <p><strong>Prix:</strong> <span id="modalPrice"></span> DH</p>
-            <p><strong>Date Expiration:</strong> <span id="modalExpiry"></span></p>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
+        <div class="card p-3 tableChart">
+          <h5 class="mb-3"><i class="bi bi-exclamation-circle-fill"></i> Produits Expirés</h5>
+          <div class="table-responsive">
+            <table
+              class="table table-striped table-bordered"
+              id="expiredProductsTable"
             >
-              Fermer
-            </button>
+              <thead class="table-dark">
+                <tr>
+                  <th>#</th>
+                  <th>Nom</th>
+                  <th>Code</th>
+                  <th>Quantité</th>
+                  <th>Prix (DH)</th>
+                  <th>Date d'expiration</th>
+                </tr>
+              </thead>
+              <tbody id="expiredBody"></tbody>
+            </table>
           </div>
+          <nav>
+            <ul
+              class="pagination justify-content-center"
+              id="expiredPagination"
+              style="overflow-y: auto;"
+            ></ul>
+          </nav>
+        </div>
+
+        <!-- Low Stock Products Table -->
+        <div class="card p-3 tableChart mt-4">
+          <h5 class="mb-3">
+            <i class="bi bi-exclamation-triangle-fill"></i> Produits en Stock Faible
+          </h5>
+          <div class="table-responsive">
+            <table
+              class="table table-striped table-bordered"
+              id="lowStockTable"
+            >
+              <thead class="table-dark">
+                <tr>
+                  <th>#</th>
+                  <th>Nom</th>
+                  <th>Code</th>
+                  <th>Quantité</th>
+                  <th>Prix (DH)</th>
+                   <th>Date d'expiration</th>
+                </tr>
+              </thead>
+              <tbody id="lowStockBody"></tbody>
+            </table>
+          </div>
+          <nav>
+            <ul
+              class="pagination justify-content-center"
+              id="lowStockPagination"
+              style="overflow-y: auto"
+            ></ul>
+          </nav>
         </div>
       </div>
     </div>
-
-    <script>
-      const sidebar = document.getElementById('sidebar');
-      const toggleBtn = document.getElementById('sidebarToggle');
-      const content = document.getElementById('content');
-      if (toggleBtn) {
-        toggleBtn.addEventListener('click', () => {
-          sidebar.classList.toggle('active');
-          content.classList.toggle('withSidebar');
-        });
-      }
-      function handleResize() {
-        if (window.innerWidth >= 768) {
-          sidebar.classList.add('active');
-          content.classList.add('withSidebar');
-          if (toggleBtn) toggleBtn.style.display = 'none';
-        } else {
-          sidebar.classList.remove('active');
-          content.classList.remove('withSidebar');
-          if (toggleBtn) toggleBtn.style.display = 'inline-block';
-        }
-      }
-      window.addEventListener('load', handleResize);
-      window.addEventListener('resize', handleResize);
-
-      // ================= Dashboard Data ==================
-      const statsRow = document.getElementById('statsRow');
-
-      async function loadStats() {
-        try {
-          const res = await fetch('/api/products');
-          const products = await res.json();
-
-          const totalProducts = products.length;
-          const outOfStock = products.filter((p) => p.quantity === 0).length;
-
-          // عدد المنتجات كميتها بين 1 و 5
-          const lowStock = products.filter((p) => p.quantity > 0 && p.quantity <= 5).length;
-
-          const today = new Date();
-          const oneYearLater = new Date();
-          oneYearLater.setFullYear(today.getFullYear() + 1);
-
-          // ====== Presque expirés ======
-          const almostExpiredProducts = products.filter((p) => {
-            const expiryDate = new Date(p.expiry);
-            return expiryDate >= today && expiryDate <= oneYearLater;
-          });
-          const almostExpiredCount = almostExpiredProducts.length;
-
-          // ====== Expired ======
-          const expiredProducts = products.filter((p) => new Date(p.expiry) < today);
-          const expiredCount = expiredProducts.length;
-
-          const totalValue = products.reduce((sum, p) => sum + p.price * p.quantity, 0);
-
-          // ====== Stats Cards ======
-          const stats = [
-            {
-              title: 'Total Produits',
-              value: totalProducts,
-              icon: 'bi-box-seam',
-              color: 'bg-primary-light',
-            },
-            {
-              title: 'Stock Faible',
-              value: lowStock,
-              icon: 'bi-exclamation-circle',
-              color: 'bg-warning-light', // لون برتقالي
-            },
-            {
-              title: 'Stock Épuisé',
-              value: outOfStock,
-              icon: 'bi-x-circle',
-              color: 'bg-danger-light',
-            },
-            {
-              title: 'Expirés',
-              value: expiredCount,
-              icon: 'bi-exclamation-triangle',
-              color: 'bg-danger-light',
-            },
-            {
-              title: 'Presque Expirés',
-              value: almostExpiredCount,
-              icon: 'bi-exclamation-triangle',
-              color: 'bg-warning-light',
-            },
-            {
-              title: 'Valeur Stock',
-              value: totalValue.toFixed(2) + ' DH',
-              icon: 'bi-cash-coin',
-              color: 'bg-success-light',
-            },
-          ];
-
-          statsRow.innerHTML = '';
-          stats.forEach((stat) => {
-            statsRow.innerHTML += `
-              <div class="col-12 col-sm-6 col-lg-3">
-                <div class="card stat-card p-3 h-100">
-                  <div class="d-flex align-items-center">
-                    <div class="stat-icon ${stat.color} me-3">
-                      <i class="bi ${stat.icon}"></i>
-                    </div>
-                    <div>
-                      <h6 class="text-muted">${stat.title}</h6>
-                      <h4 class="mb-0">${stat.value}</h4>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            `;
-          });
-
-          // ====== Fill Expired / Almost Expired Products Table ======
-          const tableBody = document.querySelector('#expiredProductsTable tbody');
-          if (tableBody) {
-            tableBody.innerHTML = '';
-            products.forEach((p, index) => {
-              const expiryDate = p.expiry ? new Date(p.expiry) : null;
-              let rowClass = '';
-              if (expiryDate) {
-                if (expiryDate < today)
-                  rowClass = 'table-danger fw-bold'; // منتهية الصلاحية: أحمر و عريض
-                else if (expiryDate >= today && expiryDate <= oneYearLater)
-                  rowClass = 'table-warning fw-bold'; // قريبة من الانتهاء: أصفر/برتقالي و عريض
-              }
-              tableBody.innerHTML += `
-                <tr class="${rowClass}">
-                  <td>${index + 1}</td>
-                  <td>${p.name}</td>
-                  <td>${p.barcode || '—'}</td>
-                  <td>${p.quantity}</td>
-                  <td>${p.price.toFixed(2)}</td>
-                  <td>${expiryDate ? expiryDate.toLocaleDateString() : '—'}</td>
-                </tr>
-              `;
-            });
-          }
-
-          // ====== Fill Low Stock Products Table ======
-          const lowStockTbody = document.querySelector('#lowStockTable tbody');
-          if (lowStockTbody) {
-            lowStockTbody.innerHTML = '';
-            products.forEach((p, index) => {
-              if (p.quantity <= 5) {
-                let rowClass = '';
-                if (p.quantity === 0) rowClass = 'table-danger fw-bold'; // مخزون 0: أحمر
-                else rowClass = 'table-warning fw-bold'; // أقل من 5: برتقالي
-                lowStockTbody.innerHTML += `
-              <tr class="${rowClass}">
-                <td>${index + 1}</td>
-                <td>${p.name}</td>
-                <td>${p.barcode || '—'}</td>
-                <td>${p.quantity}</td>
-                <td>${p.price.toFixed(2)}</td>
-              </tr>
-            `;
-              }
-            });
-          }
-
-          // ===== Charts =====
-          renderCharts(products);
-        } catch (err) {
-          console.error('Erreur:', err);
-        }
-      }
-
-      function renderCharts(products) {
-        const today = new Date();
-        const oneYearLater = new Date();
-        oneYearLater.setFullYear(today.getFullYear() + 1);
-
-        const expired = products.filter((p) => new Date(p.expiry) < today).length;
-        const almostExpired = products.filter((p) => {
-          const expiryDate = new Date(p.expiry);
-          return expiryDate >= today && expiryDate <= oneYearLater;
-        }).length;
-        const valid = products.length - expired - almostExpired;
-
-        // ===== Pie Chart =====
-        const expiryCanvas = document.getElementById('expiryChart');
-        if (expiryCanvas) {
-          new Chart(expiryCanvas, {
-            type: 'pie',
-            data: {
-              labels: ['Valides', 'Presque Expirés', 'Expirés'],
-              datasets: [
-                {
-                  data: [valid, almostExpired, expired],
-                  backgroundColor: ['#198754', '#ffc107', '#dc3545'],
-                },
-              ],
-            },
-            options: {
-              responsive: true,
-              plugins: {
-                legend: { position: 'bottom' },
-                tooltip: {
-                  callbacks: {
-                    label: function (context) {
-                      return `${context.label}: ${context.raw} produits`;
-                    },
-                  },
-                },
-              },
-            },
-          });
-        }
-
-        // ===== Bar Chart: Top 10 Products by Quantity =====
-        const topProducts = [...products].sort((a, b) => b.quantity - a.quantity).slice(0, 10);
-        const topCanvas = document.getElementById('topProductsChart');
-        if (!topCanvas) return;
-
-        new Chart(topCanvas, {
-          type: 'bar',
-          data: {
-            labels: topProducts.map((p) =>
-              p.name.length > 12 ? p.name.substring(0, 12) + '...' : p.name
-            ),
-            datasets: [
-              {
-                label: 'Quantité',
-                data: topProducts.map((p) => p.quantity),
-                backgroundColor: '#0d6efd',
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            scales: {
-              y: { beginAtZero: true, stepSize: 1 },
-            },
-            plugins: {
-              legend: { display: false },
-              tooltip: {
-                callbacks: {
-                  label: (context) => `Quantité: ${context.raw}`,
-                },
-              },
-            },
-            onClick: (event, elements) => {
-              if (elements.length > 0) {
-                const index = elements[0].index;
-                const product = topProducts[index];
-
-                // Remplir les infos dans le Modal
-                document.getElementById('modalName').textContent = product.name;
-                document.getElementById('modalCode').textContent = product.barcode || '—';
-                document.getElementById('modalQuantity').textContent = product.quantity;
-                document.getElementById('modalPrice').textContent = product.price.toFixed(2);
-                document.getElementById('modalExpiry').textContent = product.expiry
-                  ? new Date(product.expiry).toLocaleDateString()
-                  : '—';
-
-                // Afficher le Modal
-                const modal = new bootstrap.Modal(document.getElementById('productModal'));
-                modal.show();
-              }
-            },
-          },
-        });
-      }
-
-      loadStats();
-    </script>
+    <!-- Scripts -->
+    <script
+      src="js/Dashboard.js"
+      type="text/javascript"
+      charset="utf-8"
+    ></script>
   </body>
 </html>

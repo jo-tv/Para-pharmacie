@@ -52,11 +52,15 @@ app.get('/caisse', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'caisse.html'));
 });
 
-// 🟢 API: جلب كل المنتجات
+// جلب كل المنتجات
 app.get('/api/products', async (req, res) => {
+  const { page = 1, limit = 100 } = req.query; // افتراضي: 100 منتج
   try {
-    // جلب المنتجات مع ترتيب الأحدث أولاً
-    const products = await Product.find().sort({ createdAt: -1 }).lean();
+    const products = await Product.find()
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(Number(limit))
+      .lean();
     res.json(products);
   } catch (err) {
     console.error('❌ Error while fetching products:', err.message);
@@ -64,26 +68,73 @@ app.get('/api/products', async (req, res) => {
   }
 });
 
+// جلب المنتجات الجديدة فقط منذ آخر مزامنة
+app.get('/api/products/updates', async (req, res) => {
+  try {
+    const { lastSync } = req.query;
+    if (!lastSync) return res.status(400).json({ error: 'lastSync required' });
+
+    const updatedProducts = await Product.find({
+      updatedAt: { $gt: new Date(lastSync) },
+    }).lean();
+
+    res.json(updatedProducts);
+  } catch (err) {
+    console.error('❌ Error while fetching updates:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // البحث في قاعدة البيانات
 app.get('/api/products/search', async (req, res) => {
   const q = req.query.q;
+  if (!q) return res.json({}); // إذا لم يرسل المستخدم شيء
+
   try {
-    const product = await Product.findOne({
-      $or: [{ barcode: q }, { name: { $regex: q, $options: 'i' } }],
-    });
+    const product = await Product.findOne({ barcode: q }).lean(); // بدون تحويل إلى Number
     if (product) res.json(product);
-    else res.json({});
+    else res.json({}); // إرجاع كائن فارغ إذا لم يوجد
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });
 
 // POST /api/upload
 app.post('/api/upload', upload.single('image'), (req, res) => {
-  if (!req.file) return res.status(400).json({ ok: false, message: 'Aucune image reçue' });
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        ok: false,
+        message: '❌ Aucun fichier reçu',
+      });
+    }
 
-  const url = `/uploads/${req.file.filename}`;
-  res.json({ ok: true, url });
+    // السماح فقط بالصور
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(req.file.mimetype)) {
+      return res.status(400).json({
+        ok: false,
+        message: '❌ Seules les images (jpeg, png, gif, webp) sont autorisées',
+      });
+    }
+
+    // رابط كامل للملف
+    const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+
+    return res.json({
+      ok: true,
+      url: fileUrl,
+      filename: req.file.filename,
+      size: req.file.size,
+    });
+  } catch (err) {
+    console.error('Erreur upload:', err);
+    return res.status(500).json({
+      ok: false,
+      message: '❌ Erreur lors du téléchargement',
+    });
+  }
 });
 
 // 🟢 API: إضافة منتج جديد
@@ -159,12 +210,12 @@ app.delete('/api/products/:id', async (req, res) => {
 // PUT /api/products/:id
 app.put('/api/products/:id', async (req, res) => {
   const { id } = req.params;
-  const { name, price, quantity, expiry } = req.body;
+  const { name, price, quantity, barcode, expiry } = req.body;
 
   try {
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
-      { name, price, quantity, expiry },
+      { name, price, quantity,barcode, expiry },
       { new: true, runValidators: true } // لإرجاع المنتج بعد التحديث
     );
 

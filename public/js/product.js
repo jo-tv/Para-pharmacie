@@ -1,0 +1,198 @@
+// Sidebar
+const sidebar = document.getElementById('sidebar');
+const toggleBtn = document.getElementById('sidebarToggle');
+const content = document.getElementById('content');
+
+if (toggleBtn) {
+  toggleBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('active');
+    content.classList.toggle('withSidebar');
+  });
+}
+
+function handleResize() {
+  if (window.innerWidth >= 768) {
+    sidebar.classList.add('active');
+    content.classList.add('withSidebar');
+    if (toggleBtn) toggleBtn.style.display = 'none';
+  } else {
+    sidebar.classList.remove('active');
+    content.classList.remove('withSidebar');
+    if (toggleBtn) toggleBtn.style.display = 'inline-block';
+  }
+}
+window.addEventListener('load', handleResize);
+window.addEventListener('resize', handleResize);
+let products = [];
+let dataTableInstance = null;
+
+// =======================
+// إضافة منتج جديد
+// =======================
+async function addProduct(newProductData) {
+  try {
+    const res = await fetch('/api/products', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newProductData),
+    });
+
+    if (!res.ok) throw new Error('Failed to add product');
+
+    const addedProduct = await res.json();
+    addedProduct._isNew = true; // Highlight the new product
+
+    // Add the new product to the local array
+    products.unshift(addedProduct);
+
+    // Sort and update localStorage
+    products = products.sort(
+      (a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt)
+    );
+    localStorage.setItem('productsData', JSON.stringify(products));
+
+    renderProducts(products);
+
+    console.log(`✅ تم إضافة منتج جديد بنجاح: ${addedProduct.name}`);
+  } catch (err) {
+    console.error("❌ Erreur lors de l'ajout du produit:", err);
+  }
+}
+
+// =======================
+// تحميل المنتجات من localStorage أو السيرفر
+// =======================
+async function loadProducts(forceReload = false) {
+  try {
+    let localProducts = JSON.parse(localStorage.getItem('productsData')) || [];
+
+    if (!forceReload && localProducts.length > 0) {
+      products = localProducts.sort(
+        (a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt)
+      );
+      renderProducts(products);
+      return;
+    }
+
+    const res = await fetch('/api/products');
+    if (!res.ok) throw new Error('Failed to fetch products');
+    const serverProducts = await res.json();
+
+    products = serverProducts.sort(
+      (a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt)
+    );
+
+    localStorage.setItem('productsData', JSON.stringify(products));
+    localStorage.setItem('lastSync', new Date().toISOString());
+
+    renderProducts(products);
+
+    console.log(`✅ جميع المنتجات تم تحميلها (${products.length})`);
+  } catch (err) {
+    console.error('❌ Erreur lors du chargement des produits:', err);
+  }
+}
+
+// =======================
+// مزامنة المنتجات (الحذف والإضافة والتعديل)
+// =======================
+async function syncProducts() {
+  try {
+    const res = await fetch('/api/products');
+    if (!res.ok) throw new Error('Failed to fetch products');
+    const allServerProducts = await res.json();
+
+    products = allServerProducts.sort(
+      (a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt)
+    );
+
+    localStorage.setItem('productsData', JSON.stringify(products));
+    localStorage.setItem('lastSync', new Date().toISOString());
+
+    renderProducts(products);
+
+    console.log(`✅ المزامنة التلقائية اكتملت. تم تحديث البيانات (${products.length} منتج).`);
+  } catch (err) {
+    console.error('❌ Erreur lors de la synchronisation automatique:', err);
+  }
+}
+
+// =======================
+// عرض المنتجات
+// =======================
+// =======================
+// عرض المنتجات
+// =======================
+function renderProducts(list) {
+  const tbody = document.getElementById('productsBody');
+  // بناء محتوى الصفوف كـ HTML واحد
+  const rowsHtml = list.map(p => {
+    const expiryDate = p.expiry ? new Date(p.expiry).toLocaleDateString() : '—';
+    const highlightClass = p._isNew ? 'table-success' : '';
+    return `<tr class="${highlightClass}">
+              <td>${p.name}</td>
+              <td>${p.price} DH</td>
+              <td>${p.quantity}</td>
+              <td>${expiryDate}</td>
+              <td>${p.barcode}</td>
+            </tr>`;
+  }).join('');
+  tbody.innerHTML = rowsHtml;
+
+  // إعادة تهيئة DataTables فقط إذا كانت غير مهيأة
+  if (dataTableInstance) {
+    dataTableInstance.destroy();
+    dataTableInstance = null;
+  }
+  
+  dataTableInstance = $('#productsTable').DataTable({
+    responsive: true,
+    pageLength: 20,
+    lengthMenu: [10, 20, 50, 100],
+    dom: 'Bfrtip',
+    buttons: [
+      { extend: 'excelHtml5', text: '📥 Excel', className: 'btn btn-success' },
+      { extend: 'csvHtml5', text: '📥 CSV', className: 'btn btn-info' },
+      { extend: 'pdfHtml5', text: '📥 PDF', className: 'btn btn-danger' },
+      { extend: 'print', text: '🖨️ Print', className: 'btn btn-secondary' },
+    ],
+    language: { url: '/assets/fr-FR.json' },
+  });
+
+  // إزالة وسم المنتجات الجديدة بعد العرض
+  list.forEach((p) => delete p._isNew);
+}
+
+// =======================
+// فلترة المنتجات
+// =======================
+function filterProducts() {
+  const query = searchQuery.value.toLowerCase().trim();
+  const expiryVal = searchExpiry.value;
+
+  const filtered = products.filter((p) => {
+    const matchesQuery =
+      !query || p.name.toLowerCase().includes(query) || p.barcode.toLowerCase().includes(query);
+    const matchesExpiry = expiryVal
+      ? new Date(p.expiry).toISOString().slice(0, 10) === expiryVal
+      : true;
+    return matchesQuery && matchesExpiry;
+  });
+
+  renderProducts(filtered);
+}
+
+// =======================
+// زر لتحديث البيانات يدوياً
+// =======================
+function reloadProducts() {
+  loadProducts(true);
+}
+
+// =======================
+// التحميل الأولي + مزامنة تلقائية
+// =======================
+loadProducts();
+setInterval(syncProducts, 30 * 1000);

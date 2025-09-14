@@ -16,7 +16,7 @@ searchInput.addEventListener('change', async () => {
 
     if (product && product._id) {
       addToFacture(product);
-      updateFactureTotals();
+       updateFactureTotals();
       searchInput.value = '';
     } else {
       alert('Produit introuvable ❌');
@@ -36,6 +36,7 @@ function addToFacture(product) {
       _id: product._id,
       name: product.name,
       price: product.price,
+      barcode: product.barcode,
       qty: 1,
     });
   }
@@ -53,13 +54,15 @@ function renderFacture() {
         <input type="number" min="1" value="${item.qty}" 
                class="qty-input" data-id="${item._id}">
       </td>
-      <td>${item.price.toFixed(2)} DH</td>
-      <td style="text-align:right">${(item.price * item.qty).toFixed(2)} DH</td>
+      <td>${item.price.toFixed(2)}</td>
+      <td>${item.barcode}</td>
+      <td style="text-align:right">${(item.price * item.qty).toFixed(2)}</td>
       <td>
         <button class="btn-delete" data-id="${item._id}">Supprimer</button>
       </td>
     `;
     factureBody.appendChild(row);
+    updateFactureTotals();
   });
 
   // تحديث الكمية
@@ -114,7 +117,7 @@ function loadFactureFromStorage() {
   if (saved) {
     factureItems = JSON.parse(saved);
     renderFacture();
-    updateFactureTotals();
+    
   }
 }
 
@@ -171,17 +174,3 @@ function handleResize() {
 
 window.addEventListener('load', handleResize);
 window.addEventListener('resize', handleResize);
-
-// تخزين كل المنتجات
-let products = [];
-
-// تحميل المنتجات من السيرفر
-async function loadProducts() {
-  try {
-    const res = await fetch('/api/products');
-    products = await res.json();
-    renderProducts(products);
-  } catch (err) {
-    console.error('Erreur lors du chargement des produits:', err);
-  }
-}
