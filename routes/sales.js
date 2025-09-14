@@ -4,7 +4,7 @@ import Sale from '../models/Sale.js';
 
 const router = express.Router();
 
-router.post('/api/sales', async (req, res) => {
+router.post('/api/vente', async (req, res) => {
   try {
     const { items, totalHT, totalTTC, date } = req.body;
 
@@ -23,7 +23,9 @@ router.post('/api/sales', async (req, res) => {
       product.quantity -= item.qty;
 
       await product.save();
-      console.log(`Produit "${item.name}" mis à jour: ancienne quantité = ${oldQuantity}, vendue = ${item.qty}, nouvelle quantité = ${product.quantity}`);
+      console.log(
+        `Produit "${item.name}" mis à jour: ancienne quantité = ${oldQuantity}, vendue = ${item.qty}, nouvelle quantité = ${product.quantity}`
+      );
     }
 
     // 2️⃣ حفظ الفاتورة

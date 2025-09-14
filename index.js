@@ -26,8 +26,8 @@ mongoose
   .catch((err) => console.error('❌ DB CONNECTION ERROR:', err.message));
 
 // Routers
-app.use('/', productRoutes); // ✅ منتجات
-app.use('/', salesRoutes); // ✅ مبيعات
+app.use('/', productRoutes);
+app.use('/sales', salesRoutes);
 
 app.listen(5000, () => {
   console.log('🚀 Backend running on port 5000');

@@ -134,20 +134,20 @@ document.getElementById('confirm-sale').addEventListener('click', async () => {
 
   // تجهيز البيانات للإرسال
   const saleData = {
-  items: factureItems.map(i => ({
-    _id: i._id,
-    name: i.name,
-    price: i.price,
-    qty: i.qty,
-    barcode: i.barcode
-  })),
-  totalHT: factureItems.reduce((sum, i) => sum + i.price * i.qty, 0),
-  totalTTC: factureItems.reduce((sum, i) => sum + i.price * i.qty, 0) * 1.2,
-  date: new Date().toISOString() // ✅ تاريخ صالح
-};
+    items: factureItems.map((i) => ({
+      _id: i._id,
+      name: i.name,
+      price: i.price,
+      qty: i.qty,
+      barcode: i.barcode,
+    })),
+    totalHT: factureItems.reduce((sum, i) => sum + i.price * i.qty, 0),
+    totalTTC: factureItems.reduce((sum, i) => sum + i.price * i.qty, 0) * 1.2,
+    date: new Date().toISOString(), // ✅ تاريخ صالح
+  };
 
   try {
-    const res = await fetch('/api/sales', {
+    const res = await fetch('sales/api/vente', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(saleData),
