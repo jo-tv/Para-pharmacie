@@ -211,6 +211,24 @@ app.put('/api/products/:id', async (req, res) => {
 //   هنا نهايه دوال ثابعة لل product
 
 // هنا بداية دوال sales
+
+app.get('/ticket', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'ticket.html'));
+});
+
+// جلب فاتورة حسب ID
+app.get('/api/ventes', async (req, res) => {
+  try {
+    const ventes = await Sale.find().sort({ createdAt: -1 }).lean();
+    res.json({ ok: true, ventes });
+  } catch (err) {
+    console.error('❌ Erreur lors de la récupération des ventes:', err);
+    res.status(500).json({ ok: false, message: 'Erreur serveur ❌' });
+  }
+});
+
+// دالة ارسال المبيعات الى قاعدة بيانات
+
 app.post('/api/vente', async (req, res) => {
   try {
     const { items, totalHT, totalTTC, date } = req.body;
@@ -260,6 +278,28 @@ app.post('/api/vente', async (req, res) => {
   }
 });
 // هنا نهاية دوال تابع  ل salse
+
+app.put('/api/vente/:id', async (req, res) => {
+  try {
+    const updatedSale = await Sale.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updatedSale) return res.status(404).json({ ok: false, message: 'Vente introuvable ❌' });
+    res.json({ ok: true, sale: updatedSale });
+  } catch (err) {
+    console.error('Erreur serveur:', err);
+    res.status(500).json({ ok: false, message: 'Erreur serveur ❌' });
+  }
+});
+
+app.delete('/api/vente/:id', async (req, res) => {
+  try {
+    const deletedSale = await Sale.findByIdAndDelete(req.params.id);
+    if (!deletedSale) return res.status(404).json({ ok: false, message: 'Vente introuvable' });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ ok: false, message: 'Erreur serveur' });
+  }
+});
 
 // apps listen
 app.listen(5000, () => {

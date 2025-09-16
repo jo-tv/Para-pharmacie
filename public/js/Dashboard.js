@@ -83,20 +83,30 @@ document.addEventListener('DOMContentLoaded', () => {
       lowStock = 0,
       expiredCount = 0,
       almostExpiredCount = 0,
-      totalValue = 0;
+      totalValue = 0,
+      negativeStock = 0; // منتجات بكمية سالبة
 
     const expiredRows = [];
     const lowStockRows = [];
+    const negativeStockRows = [];
 
     products.forEach((p) => {
       const price = Number(p.price) || 0;
-      const qty = Number(p.quantity) || 0;
+      let qty = Number(p.quantity) || 0;
 
       totalProducts++;
+
+      // ✅ معالجة الكمية السالبة
+      if (qty < 0) {
+        negativeStock++;
+        negativeStockRows.push(p);
+        qty = 0; // نصححه إلى صفر حتى لا يؤثر على الحساب
+      }
+
       totalValue += price * qty;
 
       if (qty === 0) outOfStock++;
-      if (qty > 0 && qty <= 5) lowStock++;
+      if (qty > 0 && qty <= 1) lowStock++;
 
       const expiryDate = p.expiry ? new Date(p.expiry) : null;
       if (expiryDate && !isNaN(expiryDate)) {
@@ -109,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
-      if (qty <= 5) lowStockRows.push(p);
+      if (qty <= 2) lowStockRows.push(p);
     });
 
     return {
@@ -121,6 +131,8 @@ document.addEventListener('DOMContentLoaded', () => {
       totalValue,
       expiredRows,
       lowStockRows,
+      negativeStock,
+      negativeStockRows,
     };
   }
 
@@ -171,9 +183,11 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="col-12 col-sm-6 col-lg-3">
             <div class="card stat-card p-3 h-100">
               <div class="d-flex align-items-center">
-                <div class="me-3 p-2 rounded ${stat.color} text-white"><i class="bi ${stat.icon}"></i></div>
-                <div>
-                  <h6 class="text-muted mb-1">${stat.title}</h6>
+                <div class=" me-3 p-2 rounded ${stat.color} text-white"
+                style="box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, rgb(51, 51,
+                51) 0px 0px 0px 3px;"><i class="bi ${stat.icon}"></i></div>
+                <div style ="width : 50%">
+                  <h6 class="text-muted mb-1 fs-5 text-primary-emphasis">${stat.title}</h6>
                   <h4 class="mb-0">${stat.value}</h4>
                 </div>
               </div>
@@ -192,8 +206,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderCharts(products, expiredCount, almostExpiredCount);
   }
-
-
 
   function renderTable(items, tbody, pagination, currentPage = 1) {
     if (!tbody || !pagination) return;

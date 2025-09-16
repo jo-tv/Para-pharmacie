@@ -15,30 +15,9 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
       rel="stylesheet"
     />
-    <!-- CDN Bootstrap + DataTables -->
     <link
       rel="stylesheet"
-      href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css"
-    />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-
-    <!-- Buttons Extension for Export -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css"
-    />
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
-    <link
-      rel="stylesheet"
-      href="css/product.css"
+      href="css/ticket.css"
       type="text/css"
       media="all"
     />
@@ -75,7 +54,7 @@
         <li>
           <a
             href="/product"
-            class="nav-link active"
+            class="nav-link"
             ><i class="bi bi-boxes"></i> produit</a
           >
         </li>
@@ -86,10 +65,10 @@
             ><i class="bi bi-cart-plus"></i> Caisse</a
           >
         </li>
-                <li>
+        <li>
           <a
             href="/ticket"
-            class="nav-link"
+            class="nav-link active"
             ><i class="bi bi-bag-check-fill"></i> Ticket</a
           >
         </li>
@@ -125,28 +104,17 @@
         </div>
       </nav>
 
-      <div class="container mt-4 pro">
-        <table
-          id="productsTable"
-          class="table table-striped table-bordered table-hover"
-        >
-          <thead class="table-dark">
-            <tr>
-              <th>Nom</th>
-              <th>Prix (DH)</th>
-              <th>Quantité</th>
-              <th>Date Expiration</th>
-              <th>Code-barre</th>
-            </tr>
-          </thead>
-          <tbody id="productsBody"></tbody>
-        </table>
+      <div class="container-ticket">
+        <!-- التذاكر ستولد هنا -->
       </div>
     </div>
+
+  <!-- مكتبات -->
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script
-      src="js/product.js"
+      src="js/ticket.js"
       type="text/javascript"
-      charset="utf-8"
     ></script>
   </body>
 </html>

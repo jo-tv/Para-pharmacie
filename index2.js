@@ -5,6 +5,7 @@ import path from 'path';
 import multer from 'multer';
 import { fileURLToPath } from 'url';
 import Product from './models/Product.js';
+import Sale from './models/Sale.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,29 +14,24 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
-// ميدل وير لقراءة ملفات static
 app.use(express.static(path.join(__dirname, 'public')));
 
-// الاتصال بقاعدة بيانات MongoDB
-async function connectToDatabase() {
-  try {
-    await mongoose.connect(
-      'mongodb+srv://josefuccef7:gHkpeNOLUzOvawuh@cluster0.qmwgw.mongodb.net/alldata?retryWrites=true&w=majority&appName=Cluster0'
-    );
+// اتصال بقاعدة البيانات
+mongoose
+  .connect(
+    'mongodb+srv://josefuccef7:gHkpeNOLUzOvawuh@cluster0.qmwgw.mongodb.net/alldata?retryWrites=true&w=majority&appName=Cluster0'
+  )
+  .then(() => console.log('✅ CONNECTED TO DATABASE'))
+  .catch((err) => console.error('❌ DB CONNECTION ERROR:', err.message));
 
-    console.log('CONNCET TO DATABASE');
-  } catch (error) {
-    console.error('ERROR CONNECTING TO DATABASE:', error.message);
-  }
-}
+//   هده منطقة خاصة بدوال ثابعة لل Product
+// routes/sales.js
 
-connectToDatabase();
-// تحديد مجلد التخزين
+// إعداد multer لرفع الملفات
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'), // مجلد uploads
+  destination: (req, file, cb) => cb(null, 'uploads/'),
   filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
 });
-
 const upload = multer({ storage });
 
 // 📄 عرض صفحة index.html
@@ -174,24 +170,6 @@ app.post('/api/products', async (req, res) => {
   }
 });
 
-// 🟢 API: بيع منتج (إنقاص كمية)
-app.post('/api/sell/:id', async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
-    if (!product) return res.status(404).json({ error: 'Produit non trouvé' });
-
-    if (product.quantity > 0) {
-      product.quantity -= 1;
-      await product.save();
-      res.json({ message: 'Vente effectuée ✅', product });
-    } else {
-      res.json({ message: 'Stock épuisé ❌' });
-    }
-  } catch (err) {
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
-});
-
 // DELETE /api/products/:id
 app.delete('/api/products/:id', async (req, res) => {
   const { id } = req.params;
@@ -215,7 +193,7 @@ app.put('/api/products/:id', async (req, res) => {
   try {
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
-      { name, price, quantity,barcode, expiry },
+      { name, price, quantity, barcode, expiry },
       { new: true, runValidators: true } // لإرجاع المنتج بعد التحديث
     );
 
@@ -230,6 +208,60 @@ app.put('/api/products/:id', async (req, res) => {
   }
 });
 
+//   هنا نهايه دوال ثابعة لل product
+
+// هنا بداية دوال sales
+app.post('/api/vente', async (req, res) => {
+  try {
+    const { items, totalHT, totalTTC, date } = req.body;
+
+    console.log('Body reçu du frontend:', req.body);
+
+    // 1️⃣ تحديث الكميات لكل منتج
+    for (const item of items) {
+      const product = await Product.findById(item._id);
+      if (!product) {
+        console.warn(`⚠️ Produit non trouvé: ${item.name}`);
+        continue; // نتجاوز المنتج الغير موجود
+      }
+
+      // نقص الكمية حسب الفاتورة، يمكن أن تصبح سالبة
+      const oldQuantity = product.quantity;
+      product.quantity -= item.qty;
+
+      await product.save();
+      console.log(
+        `Produit "${item.name}" mis à jour: ancienne quantité = ${oldQuantity}, vendue = ${item.qty}, nouvelle quantité = ${product.quantity}`
+      );
+    }
+
+    // 2️⃣ حفظ الفاتورة
+    const newSale = new Sale({
+      items: items.map((i) => ({
+        productId: i._id,
+        name: i.name,
+        price: i.price,
+        quantity: i.qty,
+        barcode: i.barcode,
+      })),
+      totalHT,
+      totalTTC,
+      createdAt: date ? new Date(date) : new Date(),
+    });
+
+    await newSale.save();
+
+    console.log('✅ Vente confirmée et enregistrée:', newSale);
+
+    res.json({ ok: true, message: 'Vente confirmée et enregistrée ✅', sale: newSale });
+  } catch (err) {
+    console.error('❌ Erreur lors de la sauvegarde vente:', err);
+    res.status(500).json({ ok: false, message: 'Erreur serveur ❌' });
+  }
+});
+// هنا نهاية دوال تابع  ل salse
+
+// apps listen
 app.listen(5000, () => {
-  console.log('🚀 Backend running on ');
+  console.log('🚀 Backend running on port 5000');
 });
