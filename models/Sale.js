@@ -8,10 +8,11 @@ const saleSchema = new mongoose.Schema({
       price: Number,
       quantity: Number,
       barcode: String,
-    }
+    },
   ],
   totalHT: { type: Number, required: true },
   totalTTC: { type: Number, required: true },
+  ticketBarcode: { type: String, unique: true }, // باركود ثابت وفريد
   createdAt: { type: Date, default: Date.now }, // ✅ مهم
 });
 

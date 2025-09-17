@@ -233,27 +233,44 @@ app.post('/api/vente', async (req, res) => {
   try {
     const { items, totalHT, totalTTC, date } = req.body;
 
-    console.log('Body reçu du frontend:', req.body);
+    console.log('📩 Body reçu du frontend:', req.body);
+
+    // 🔹 دالة توليد باركود EAN13 (داخل نفس الملف)
+    function generateEAN13() {
+      let code = '';
+      for (let i = 0; i < 12; i++) code += Math.floor(Math.random() * 10);
+      let sum = 0;
+      for (let i = 0; i < 12; i++) sum += parseInt(code[i]) * (i % 2 === 0 ? 1 : 3);
+      const checkDigit = (10 - (sum % 10)) % 10;
+      return code + checkDigit;
+    }
 
     // 1️⃣ تحديث الكميات لكل منتج
     for (const item of items) {
       const product = await Product.findById(item._id);
       if (!product) {
         console.warn(`⚠️ Produit non trouvé: ${item.name}`);
-        continue; // نتجاوز المنتج الغير موجود
+        continue;
       }
 
-      // نقص الكمية حسب الفاتورة، يمكن أن تصبح سالبة
       const oldQuantity = product.quantity;
       product.quantity -= item.qty;
-
       await product.save();
+
       console.log(
-        `Produit "${item.name}" mis à jour: ancienne quantité = ${oldQuantity}, vendue = ${item.qty}, nouvelle quantité = ${product.quantity}`
+        `🛒 Produit "${item.name}" mis à jour: ancienne quantité = ${oldQuantity}, vendue = ${item.qty}, nouvelle quantité = ${product.quantity}`
       );
     }
 
-    // 2️⃣ حفظ الفاتورة
+    // 2️⃣ توليد باركود للتذكرة
+    let ticketBarcode;
+    let exists = true;
+    while (exists) {
+      ticketBarcode = generateEAN13();
+      exists = await Sale.findOne({ ticketBarcode }); // نتأكد أنه مش مكرر
+    }
+
+    // 3️⃣ حفظ الفاتورة
     const newSale = new Sale({
       items: items.map((i) => ({
         productId: i._id,
@@ -264,6 +281,7 @@ app.post('/api/vente', async (req, res) => {
       })),
       totalHT,
       totalTTC,
+      ticketBarcode, // ⬅️ يتخزن في DB مع باقي بيانات التذكرة
       createdAt: date ? new Date(date) : new Date(),
     });
 
@@ -271,7 +289,11 @@ app.post('/api/vente', async (req, res) => {
 
     console.log('✅ Vente confirmée et enregistrée:', newSale);
 
-    res.json({ ok: true, message: 'Vente confirmée et enregistrée ✅', sale: newSale });
+    res.json({
+      ok: true,
+      message: 'Vente confirmée et enregistrée ✅',
+      sale: newSale,
+    });
   } catch (err) {
     console.error('❌ Erreur lors de la sauvegarde vente:', err);
     res.status(500).json({ ok: false, message: 'Erreur serveur ❌' });

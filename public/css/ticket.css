@@ -95,7 +95,7 @@ body {
 .hr-sm,
 .hr-lg {
   border-bottom: 1.5px dashed #333;
-  margin: 0;
+  margin: 10px auto;
 }
 
 .hr-sm {
@@ -194,7 +194,7 @@ body {
 
 .ope {
   position: relative;
-  right: 10%;
+  right: 7%;
 }
 
 .prix {
@@ -213,7 +213,7 @@ body {
   margin-top: 7px;
   margin-bottom: 0;
   position: relative;
-  right: 4%;
+  right: 2%;
 }
 
 .col3 {
@@ -231,9 +231,6 @@ table > tr :first-child > td {
   border-top: 2px solid;
 }
 
-table tr td {
-  border-bottom: 1px dotted;
-}
 /* fin  code css pour ticket caisse  */
 
 /* عندما تكون الشاشة كبيرة، نُبقي sidebar مفتوحًا دائمًا */

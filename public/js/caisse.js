@@ -1,11 +1,13 @@
+// 🟢 عناصر DOM
 const searchInput = document.getElementById('searchQuery');
 const factureBody = document.getElementById('facture-body');
 const totalHTEl = document.getElementById('total-ht');
 const totalTTCEl = document.getElementById('total-ttc');
+const tvaEl = document.getElementById('tva'); // تم تعريفه الآن
 
 let factureItems = [];
 
-// 🟢 البحث
+// 🟢 البحث عن منتج
 searchInput.addEventListener('change', async () => {
   const query = searchInput.value.trim();
   if (!query) return;
@@ -16,7 +18,6 @@ searchInput.addEventListener('change', async () => {
 
     if (product && product._id) {
       addToFacture(product);
-      updateFactureTotals();
       searchInput.value = '';
     } else {
       alert('Produit introuvable ❌');
@@ -43,6 +44,7 @@ function addToFacture(product) {
   renderFacture();
 }
 
+// 🟢 عرض الفاتورة
 function renderFacture() {
   factureBody.innerHTML = '';
 
@@ -62,10 +64,9 @@ function renderFacture() {
       </td>
     `;
     factureBody.appendChild(row);
-    updateFactureTotals();
   });
 
-  // تحديث الكمية
+  // تحديث الكمية عند تغيير input
   document.querySelectorAll('.qty-input').forEach((input) => {
     input.addEventListener('change', (e) => {
       const id = e.target.dataset.id;
@@ -73,12 +74,11 @@ function renderFacture() {
       if (item) {
         item.qty = parseInt(e.target.value) || 1;
         renderFacture();
-        updateFactureTotals();
       }
     });
   });
 
-  // حذف منتج مع تأكيد
+  // حذف منتج
   document.querySelectorAll('.btn-delete').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       const id = e.target.dataset.id;
@@ -86,32 +86,37 @@ function renderFacture() {
       if (item && confirm(`Voulez-vous vraiment supprimer "${item.name}" ?`)) {
         factureItems = factureItems.filter((i) => i._id !== id);
         renderFacture();
-        updateFactureTotals();
       }
     });
   });
 
-  // بعد كل تحديث → نخزن البيانات
+  // بعد كل تحديث → نحفظ الفاتورة محليًا
   saveFactureToStorage();
+
+  // تحديث المجاميع
+  updateFactureTotals();
 }
 
-// 🟢 حساب المجموع
+// 🟢 حساب المجاميع
 function updateFactureTotals() {
-  const totalHT = factureItems.reduce((sum, i) => sum + i.price * i.qty, 0);
-  const tva = totalHT * 0.2;
-  const totalTTC = totalHT + tva;
+  // TTC = المجموع كما هو
+  const totalTTC = factureItems.reduce((sum, i) => sum + i.price * i.qty, 0);
+
+  // استخراج HT من TTC (20% TVA)
+  const totalHT = totalTTC / 1.2;
+  const tva = totalTTC - totalHT;
 
   totalHTEl.textContent = totalHT.toFixed(2) + ' DH';
+  tvaEl.textContent = tva.toFixed(2) + ' DH';
   totalTTCEl.textContent = totalTTC.toFixed(2) + ' DH';
 }
 
-//حفظ الفاتورة في
+// 🟢 حفظ الفاتورة في localStorage
 function saveFactureToStorage() {
   localStorage.setItem('factureItems', JSON.stringify(factureItems));
 }
 
-// <!-- تعديل renderFacture() لإضافة التخزين -->
-
+// 🟢 تحميل الفاتورة عند فتح الصفحة
 function loadFactureFromStorage() {
   const saved = localStorage.getItem('factureItems');
   if (saved) {
@@ -120,7 +125,7 @@ function loadFactureFromStorage() {
   }
 }
 
-// زر لتأكيد المبيعة -->
+// 🟢 تأكيد البيع
 document.getElementById('confirm-sale').addEventListener('click', async () => {
   if (factureItems.length === 0) {
     alert('⚠️ Aucune produit dans la facture !');
@@ -129,10 +134,10 @@ document.getElementById('confirm-sale').addEventListener('click', async () => {
 
   if (!confirm('Voulez-vous confirmer cette vente ?')) return;
 
-  // استخدام تاريخ صالح لـ MongoDB
-  const now = new Date();
+  const totalTTC = factureItems.reduce((sum, i) => sum + i.price * i.qty, 0);
+  const totalHT = totalTTC / 1.2;
+  const tva = totalTTC - totalHT;
 
-  // تجهيز البيانات للإرسال
   const saleData = {
     items: factureItems.map((i) => ({
       _id: i._id,
@@ -141,9 +146,10 @@ document.getElementById('confirm-sale').addEventListener('click', async () => {
       qty: i.qty,
       barcode: i.barcode,
     })),
-    totalHT: factureItems.reduce((sum, i) => sum + i.price * i.qty, 0),
-    totalTTC: factureItems.reduce((sum, i) => sum + i.price * i.qty, 0) * 1.2,
-    date: new Date().toISOString(), // ✅ تاريخ صالح
+    totalHT,
+    totalTTC,
+    tva,
+    date: new Date().toISOString(),
   };
 
   try {
@@ -161,11 +167,10 @@ document.getElementById('confirm-sale').addEventListener('click', async () => {
     const result = await res.json();
     console.log('✅ Vente sauvegardée en base:', result);
 
-    // مسح التخزين المحلي
+    // مسح التخزين المحلي بعد البيع
     factureItems = [];
     saveFactureToStorage();
     renderFacture();
-    updateFactureTotals();
 
     alert('✅ Vente confirmée et sauvegardée avec succès !');
   } catch (err) {
@@ -174,7 +179,7 @@ document.getElementById('confirm-sale').addEventListener('click', async () => {
   }
 });
 
-// تحميل الفاتورة عند فتح الصفحة -->
+// تحميل الفاتورة عند فتح الصفحة
 document.addEventListener('DOMContentLoaded', () => {
   loadFactureFromStorage();
 });
