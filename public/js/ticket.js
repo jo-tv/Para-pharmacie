@@ -34,19 +34,26 @@ async function loadTickets(searchTerm = '') {
   try {
     const res = await fetch('/api/ventes');
     const data = await res.json();
-    
+
     if (!data.ok) {
       console.error('Erreur:', data.message);
       return;
     }
-    
+
     let ventes = data.ventes;
 
-    // Filter the sales based on the search term
+    // 🕒 فلترة آخر 24 ساعة
+    const now = Date.now();
+    const last24h = now - 24 * 60 * 60 * 1000; // 24 ساعة بالميلي ثانية
+    ventes = ventes.filter((sale) => {
+      const createdAt = new Date(sale.createdAt).getTime();
+      return createdAt >= last24h;
+    });
+
+    // 🔍 فلترة حسب البحث
     if (searchTerm) {
       const lowerCaseSearchTerm = searchTerm.toLowerCase();
-      ventes = ventes.filter(sale => {
-        // Format the ticket creation date to YYYY-MM-DD for accurate comparison
+      ventes = ventes.filter((sale) => {
         const saleDate = new Date(sale.createdAt).toISOString().slice(0, 10);
         const totalTTC = sale.totalTTC.toFixed(2).toLowerCase();
         const ticketBarcode = sale.ticketBarcode.toLowerCase();
@@ -70,14 +77,15 @@ async function loadTickets(searchTerm = '') {
           <button class="btn btn-dark btn-print">🖨️ Print</button>
           <button class="btn btn-danger btn-pdf">📄 PDF</button>
           <button class="btn btn-warning btn-delete">❌ Delete</button>
+          <button class="btn btn-info btn-facture">🧾 Facture</button>
         </div>
         <div class="head-ticket">
           <img src="https://i.postimg.cc/k41NXPLX/Photoroom-20250915-231503.png" alt="logo"/>
           <p class="x-bold">Para Petit Prix</p>
           <p class="bold">ParaPharmacie Petit Prix Marrakech</p>
-          <p class="bold ">Tél: 05 25 060 240/241</p>
-          <p class="bold" >IF: 2202961 RC 129997</p>
-          <p class="bold p1 " >TP : 47924641 ICE : 001525045000091</p>
+          <p class="bold ">Tél: 06 79 54 79 79</p>
+          <p class="bold" >IF: 25067018 RC 126564</p>
+          <p class="bold p1 " >PAT : 67000100 ICE : 001624723000050</p>
           <p class="ope " >Date D'Opérateur : ${new Date(sale.createdAt).toLocaleString()}</p>
           <br/>
           <p class="montant ">Montant TTC DHS</p>
@@ -94,8 +102,12 @@ async function loadTickets(searchTerm = '') {
                   </div>
                   <div class="prix">
                     <p></p>
-                    <p class="editable" data-field="quantity">${item.quantity} x ${item.price.toFixed(2)} DHS</p>
-                    <p class="editable" data-field="total">${(item.quantity * item.price).toFixed(2)}</p>
+                    <p class="editable" data-field="quantity">${
+                      item.quantity
+                    } x ${item.price.toFixed(2)} DHS</p>
+                    <p class="editable" data-field="total">${(item.quantity * item.price).toFixed(
+                      2
+                    )}</p>
                   </div>
                   <div class="hr-lg"></div>
                 `
@@ -118,10 +130,14 @@ async function loadTickets(searchTerm = '') {
             <div class="tva col2 col3">
               <p class="editable" data-field="tvaRate">20,00%</p>
               <p class="editable" data-field="totalHT">${sale.totalHT.toFixed(2)}</p>
-              <p class="editable" data-field="tvaAmount">${(sale.totalTTC - sale.totalHT).toFixed(2)}</p>
+              <p class="editable" data-field="tvaAmount">${(sale.totalTTC - sale.totalHT).toFixed(
+                2
+              )}</p>
               <p class="editable" data-field="totalTTC">${sale.totalTTC.toFixed(2)}</p>
             </div>
-            <p class="t col2 col3 editable" data-field="nbArticles">Nb Article(s) : ${sale.items.length}</p>
+            <p class="t col2 col3 editable" data-field="nbArticles">Nb Article(s) : ${
+              sale.items.length
+            }</p>
             <p class="col2 col3 ticketNum">N° de ticket:</p>
             <svg class="barcode"></svg>
             <br/>
@@ -135,7 +151,7 @@ async function loadTickets(searchTerm = '') {
         </div> 
       `;
 
-      container.appendChild(ticket); // Use the barcode from the server
+      container.appendChild(ticket);
       const barcodeValue = sale.ticketBarcode;
       JsBarcode(ticket.querySelector('.barcode'), barcodeValue, {
         format: 'ean13',
@@ -177,7 +193,7 @@ async function loadTickets(searchTerm = '') {
         const { html, style } = createPrintableTicket(ticket);
         const tempWrapper = document.createElement('div');
         tempWrapper.innerHTML = style + html;
-        document.body.appendChild(tempWrapper); // Temporarily append
+        document.body.appendChild(tempWrapper);
         setTimeout(() => {
           html2pdf()
             .from(tempWrapper)
@@ -188,7 +204,7 @@ async function loadTickets(searchTerm = '') {
               jsPDF: { unit: 'mm', format: [150, 500], orientation: 'portrait' },
             })
             .save()
-            .then(() => tempWrapper.remove()); // Remove element after saving PDF
+            .then(() => tempWrapper.remove());
         }, 500);
       };
 
@@ -205,6 +221,14 @@ async function loadTickets(searchTerm = '') {
           w.close();
         };
       }
+      
+      ticket.querySelector('.btn-facture').onclick = () => {
+        // حفظ بيانات البيع مؤقتاً في localStorage
+        localStorage.setItem('factureData', JSON.stringify(sale));
+
+        // الانتقال لصفحة facture
+        window.location.href = '/facture';
+      };
 
       // Print button
       ticket.querySelector('.btn-print').onclick = () => {
@@ -218,7 +242,7 @@ async function loadTickets(searchTerm = '') {
           const res = await fetch(`/api/vente/${sale._id}`, { method: 'DELETE' });
           const result = await res.json();
           if (result.ok) {
-            ticket.remove(); // Remove ticket from the interface
+            ticket.remove();
             alert('✅ Vente supprimée avec succès !');
           } else {
             alert('❌ Erreur lors de la suppression: ' + result.message);
@@ -236,16 +260,16 @@ async function loadTickets(searchTerm = '') {
 
 // Add event listener to the search input field for live filtering
 document.addEventListener('DOMContentLoaded', () => {
-    // Initial load of all tickets when the page is ready
-    loadTickets(); 
+  // Initial load of all tickets when the page is ready
+  loadTickets();
 
-    // Find the search input field by its ID
-    const searchInput = document.getElementById('searchInput');
+  // Find the search input field by its ID
+  const searchInput = document.getElementById('searchInput');
 
-    // Add an event listener to the search input field for live filtering
-    if (searchInput) {
-        searchInput.addEventListener('input', (event) => {
-            loadTickets(event.target.value);
-        });
-    }
+  // Add an event listener to the search input field for live filtering
+  if (searchInput) {
+    searchInput.addEventListener('input', (event) => {
+      loadTickets(event.target.value);
+    });
+  }
 });

@@ -82,8 +82,8 @@ body {
   transform: translateX(-15px);
 }
 .stat-card i {
-  width: 9rem;
-  font-size: 2.5rem;
+  width: 5rem;
+  font-size: 1.5rem;
   padding: 15px;
   border-radius: 0.75rem;
   color: #fff;

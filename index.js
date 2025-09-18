@@ -215,6 +215,9 @@ app.put('/api/products/:id', async (req, res) => {
 app.get('/ticket', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'ticket.html'));
 });
+app.get('/facture', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'facture.html'));
+});
 
 // جلب فاتورة حسب ID
 app.get('/api/ventes', async (req, res) => {

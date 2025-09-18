@@ -29,107 +29,114 @@ function handleResize() {
 window.addEventListener('load', handleResize);
 window.addEventListener('resize', handleResize);
 
-async function loadTickets() {
+// A single function to load, filter, and display tickets
+async function loadTickets(searchTerm = '') {
   try {
     const res = await fetch('/api/ventes');
     const data = await res.json();
-
+    
     if (!data.ok) {
       console.error('Erreur:', data.message);
       return;
     }
+    
+    let ventes = data.ventes;
 
-    const ventes = data.ventes;
+    // Filter the sales based on the search term
+    if (searchTerm) {
+      const lowerCaseSearchTerm = searchTerm.toLowerCase();
+      ventes = ventes.filter(sale => {
+        // Format the ticket creation date to YYYY-MM-DD for accurate comparison
+        const saleDate = new Date(sale.createdAt).toISOString().slice(0, 10);
+        const totalTTC = sale.totalTTC.toFixed(2).toLowerCase();
+        const ticketBarcode = sale.ticketBarcode.toLowerCase();
+
+        return (
+          saleDate.includes(lowerCaseSearchTerm) ||
+          totalTTC.includes(lowerCaseSearchTerm) ||
+          ticketBarcode.includes(lowerCaseSearchTerm)
+        );
+      });
+    }
+
     const container = document.querySelector('.container-ticket');
-    container.innerHTML = ''; // نفرغ القديم
+    container.innerHTML = ''; // Clear old tickets
 
     ventes.forEach((sale) => {
       const ticket = document.createElement('div');
-      ticket.className = 'ticket mb-4 p-3 border';
-
-      // HTML كامل لكل تذكرة
+      ticket.className = 'ticket mb-4 p-3 border'; // Full HTML for each ticket
       ticket.innerHTML = `
-    <div class="mb-3 text-center">
-      <button class="btn btn-dark btn-print">🖨️ Print</button>
-      <button class="btn btn-danger btn-pdf">📄 PDF</button>
-      <button class="btn btn-warning btn-delete">❌ Delete</button>
-    </div>
-
-    <div class="head-ticket">
-      <img src="https://i.postimg.cc/k41NXPLX/Photoroom-20250915-231503.png" alt="logo"/>
-      <p class="x-bold">Para Petit Prix</p>
-      <p class="bold">ParaPharmacie Petit Prix Marrakech</p>
-      <p class="bold ">Tél: 05 25 060 240/241</p>
-      <p class="bold" >IF: 2202961 RC 129997</p>
-      <p class="bold p1 " >TP : 47924641 ICE : 001525045000091</p>
-      <p class="ope " >Date D'Opérateur : ${new Date(sale.createdAt).toLocaleString()}</p>
-      <br/>
-      <p class="montant ">Montant TTC DHS</p>
-    </div>
-    <div class="hr-lg"></div>
-    <div class="body-ticket">
-      <div class="produits">
-        ${sale.items
-          .map(
-            (item) => `
-          <div class="col2 col3 p1">
-            <p>${item.name}</p>
-            <p class="fs3 editable" data-field="price">${item.price} DH</p>
-          </div>
-          <div class="prix">
-            <p></p>
-            <p class="editable" data-field="quantity">${item.quantity} x ${item.price.toFixed(
-              2
-            )} DHS</p>
-            <p class="editable" data-field="total">${(item.quantity * item.price).toFixed(2)}</p>
+        <div class="mb-3 text-center">
+          <button class="btn btn-dark btn-print">🖨️ Print</button>
+          <button class="btn btn-danger btn-pdf">📄 PDF</button>
+          <button class="btn btn-warning btn-delete">❌ Delete</button>
+        </div>
+        <div class="head-ticket">
+          <img src="https://i.postimg.cc/k41NXPLX/Photoroom-20250915-231503.png" alt="logo"/>
+          <p class="x-bold">Para Petit Prix</p>
+          <p class="bold">ParaPharmacie Petit Prix Marrakech</p>
+          <p class="bold ">Tél: 05 25 060 240/241</p>
+          <p class="bold" >IF: 2202961 RC 129997</p>
+          <p class="bold p1 " >TP : 47924641 ICE : 001525045000091</p>
+          <p class="ope " >Date D'Opérateur : ${new Date(sale.createdAt).toLocaleString()}</p>
+          <br/>
+          <p class="montant ">Montant TTC DHS</p>
+        </div>
+        <div class="hr-lg"></div>
+        <div class="body-ticket">
+          <div class="produits">
+            ${sale.items
+              .map(
+                (item) => `
+                  <div class="col2 col3 p1">
+                    <p>${item.name}</p>
+                    <p class="fs3 editable" data-field="price">${item.price} DH</p>
+                  </div>
+                  <div class="prix">
+                    <p></p>
+                    <p class="editable" data-field="quantity">${item.quantity} x ${item.price.toFixed(2)} DHS</p>
+                    <p class="editable" data-field="total">${(item.quantity * item.price).toFixed(2)}</p>
+                  </div>
+                  <div class="hr-lg"></div>
+                `
+              )
+              .join('')}
+            <div class="col2A">
+              <p>Total</p>
+              <p>DHS</p>
+              <p class="editable" data-field="totalTTC">${sale.totalTTC.toFixed(2)}</p>
+            </div>
+            <div class="cols">
+              <p data-field="tax">DONT DROITS DE TIMBRE : 0,00</p>
+            </div>
           </div>
           <div class="hr-lg"></div>
-        `
-          )
-          .join('')}
-        <div class="col2A">
-          <p>Total</p>
-          <p>DHS</p>
-          <p class="editable" data-field="totalTTC">${sale.totalTTC.toFixed(2)}</p>
+          <div class="carte">
+            <div class="tva col2 col3">
+              <p>Taux TVA</p><p>HT</p><p>TVA</p><p>TTC</p>
+            </div>
+            <div class="tva col2 col3">
+              <p class="editable" data-field="tvaRate">20,00%</p>
+              <p class="editable" data-field="totalHT">${sale.totalHT.toFixed(2)}</p>
+              <p class="editable" data-field="tvaAmount">${(sale.totalTTC - sale.totalHT).toFixed(2)}</p>
+              <p class="editable" data-field="totalTTC">${sale.totalTTC.toFixed(2)}</p>
+            </div>
+            <p class="t col2 col3 editable" data-field="nbArticles">Nb Article(s) : ${sale.items.length}</p>
+            <p class="col2 col3 ticketNum">N° de ticket:</p>
+            <svg class="barcode"></svg>
+            <br/>
+          </div>
+          <div class="p1 prix editable" data-field="dateOp">
+            <p data-field="dateOp">${new Date(sale.createdAt).toLocaleString()}</p>
+          </div>
         </div>
-        <div class="cols">
-          <p data-field="tax">DONT DROITS DE TIMBRE : 0,00</p>
-        </div>
-      </div>
-      <div class="hr-lg"></div>
-      <div class="carte">
-        <div class="tva col2 col3">
-          <p>Taux TVA</p><p>HT</p><p>TVA</p><p>TTC</p>
-        </div>
-        <div class="tva col2 col3">
-          <p class="editable" data-field="tvaRate">20,00%</p>
-          <p class="editable" data-field="totalHT">${sale.totalHT.toFixed(2)}</p>
-          <p class="editable" data-field="tvaAmount">${(sale.totalTTC - sale.totalHT).toFixed(
-            2
-          )}</p>
-          <p class="editable" data-field="totalTTC">${sale.totalTTC.toFixed(2)}</p>
-        </div>
-        <p class="t col2 col3 editable" data-field="nbArticles">Nb Article(s) : ${
-          sale.items.length
-        }</p>
-        <p class="col2 col3 ticketNum">N° de ticket:</p>
-        <svg class="barcode"></svg>
-        <br/>
-      </div>
-      <div class="p1 prix editable" data-field="dateOp">
-        <p data-field="dateOp">${new Date(sale.createdAt).toLocaleString()}</p>
-      </div>
-    </div>
-    <div class="footer-ticket">
-      <p class="title-footer">Nous vous remercions<br/>de votre visite</p>
-    </div>
-  `;
+        <div class="footer-ticket">
+          <p class="title-footer">Nous vous remercions<br/>de votre visite</p>
+        </div> 
+      `;
 
-      container.appendChild(ticket);
-
-      // ⬅️ استعمال الباركود القادم من السيرفر
+      container.appendChild(ticket); // Use the barcode from the server
       const barcodeValue = sale.ticketBarcode;
-
       JsBarcode(ticket.querySelector('.barcode'), barcodeValue, {
         format: 'ean13',
         width: 2,
@@ -138,85 +145,39 @@ async function loadTickets() {
       });
       ticket.querySelector('.ticketNum').innerText = 'N° de ticket: ' + barcodeValue;
 
-      // بقية الأكواد الخاصة بـ PDF, Print, Delete تبقى كما هي...
-
-      // أزرار التذكرة
+      // Ticket buttons
       function createPrintableTicket(ticket) {
         const tempDiv = document.createElement('div');
         tempDiv.className = 'printable-ticket';
         tempDiv.innerHTML = ticket.outerHTML;
-
-        // إزالة أزرار التحكم
         tempDiv
           .querySelectorAll('.btn-print, .btn-pdf, .btn-edit, .btn-save, .btn-delete')
           .forEach((btn) => btn.remove());
-
         const style = `
-    <style>
-      body { margin:0; padding:0; }
-      .head-ticket{
-        text-align: center;
-      }
-      .printable-ticket { 
-        width: 100%; 
-        max-width: 450px; 
-        margin: 0 auto; 
-        padding: 15px; 
-        background: #fff; 
-        box-sizing: border-box; 
-        font-family: Arial, sans-serif;
-      }
-      .printable-ticket .head-ticket, 
-      .printable-ticket .body-ticket, 
-      .printable-ticket .footer-ticket {
-        width: 100%;
-      }
-      .prix {
-      display: flex;
-      justify-content: space-between;
-      padding-bottom: 10px;
-      }
-      
-      .col2A {
-      font-size: 21px;
-      font-weight: 900;
-      padding: 3px 0;
-      }
-      
-      .cols {
-      margin-top: 7px;
-      margin-bottom: 0;
-      position: relative;
-      right: 2%;
-      }
-      
-      .col3 {
-      font-size: 14px;
-      }
-      
-      .p1 {
-      position: relative;
-      right: 5%;
-      padding: 0 10px;
-      width: 110%;
-      }
-      .head-ticket img { max-width: 80px; max-height: 80px; display:block; margin:0 auto 10px;}
-      .barcode { width: 100%; scale: 0.9 ; display : flex;align-items: center; justify-content: center;  }
-      .footer-ticket{font-size: 18px;  font-weight: 700;
-  text-shadow: 0px 1px 0px rgba(0, 0, 0, 0.5);  text-align: center;  line-height: 30px;  letter-spacing: -1px;}
-    </style>
-  `;
-
+          <style>
+            body { margin:0; padding:0; }
+            .head-ticket{ text-align: center; }
+            .printable-ticket { width: 100%; max-width: 450px; margin: 0 auto; padding: 15px; background: #fff; box-sizing: border-box; font-family: Arial, sans-serif; }
+            .printable-ticket .head-ticket, .printable-ticket .body-ticket, .printable-ticket .footer-ticket { width: 100%; }
+            .prix { display: flex; justify-content: space-between; padding-bottom: 10px; }
+            .col2A { font-size: 21px; font-weight: 900; padding: 3px 0; }
+            .cols { margin-top: 7px; margin-bottom: 0; position: relative; right: 2%; }
+            .col3 { font-size: 14px; }
+            .p1 { position: relative; right: 5%; padding: 0 10px; width: 110%; }
+            .head-ticket img { max-width: 80px; max-height: 80px; display:block; margin:0 auto 10px;}
+            .barcode { width: 100%; scale: 0.9 ; display : flex;align-items: center; justify-content: center; }
+            .footer-ticket{font-size: 18px; font-weight: 700; text-shadow: 0px 1px 0px rgba(0, 0, 0, 0.5); text-align: center; line-height: 30px; letter-spacing: -1px;}
+          </style>
+        `;
         return { html: tempDiv.outerHTML, style };
       }
 
-      // زر PDF
+      // PDF button
       ticket.querySelector('.btn-pdf').onclick = () => {
         const { html, style } = createPrintableTicket(ticket);
         const tempWrapper = document.createElement('div');
         tempWrapper.innerHTML = style + html;
-        document.body.appendChild(tempWrapper); // مؤقتًا
-
+        document.body.appendChild(tempWrapper); // Temporarily append
         setTimeout(() => {
           html2pdf()
             .from(tempWrapper)
@@ -227,19 +188,17 @@ async function loadTickets() {
               jsPDF: { unit: 'mm', format: [150, 500], orientation: 'portrait' },
             })
             .save()
-            .then(() => tempWrapper.remove()); // إزالة العنصر بعد حفظ PDF
+            .then(() => tempWrapper.remove()); // Remove element after saving PDF
         }, 500);
       };
 
       function printTicket(ticket) {
         const { html, style } = createPrintableTicket(ticket);
-
         const w = window.open('', '_blank');
         w.document.write('<html><head><title>Ticket</title>' + style + '</head><body>');
         w.document.write(html);
         w.document.write('</body></html>');
         w.document.close();
-
         w.onload = () => {
           w.focus();
           w.print();
@@ -247,25 +206,26 @@ async function loadTickets() {
         };
       }
 
-      // استخدامه مع زر الطباعة
+      // Print button
       ticket.querySelector('.btn-print').onclick = () => {
         printTicket(ticket);
       };
 
+      // Delete button
       ticket.querySelector('.btn-delete').onclick = async () => {
         if (!confirm('Voulez-vous vraiment supprimer cette vente ?')) return;
         try {
           const res = await fetch(`/api/vente/${sale._id}`, { method: 'DELETE' });
           const result = await res.json();
           if (result.ok) {
-            ticket.remove(); // إزالة التذكرة من الواجهة
+            ticket.remove(); // Remove ticket from the interface
             alert('✅ Vente supprimée avec succès !');
           } else {
             alert('❌ Erreur lors de la suppression: ' + result.message);
           }
         } catch (err) {
           console.error('Erreur delete:', err);
-          alert('❌ Erreur lors de la suppression');
+          alert('❌ Erreur lors من the suppression');
         }
       };
     });
@@ -274,4 +234,18 @@ async function loadTickets() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', loadTickets);
+// Add event listener to the search input field for live filtering
+document.addEventListener('DOMContentLoaded', () => {
+    // Initial load of all tickets when the page is ready
+    loadTickets(); 
+
+    // Find the search input field by its ID
+    const searchInput = document.getElementById('searchInput');
+
+    // Add an event listener to the search input field for live filtering
+    if (searchInput) {
+        searchInput.addEventListener('input', (event) => {
+            loadTickets(event.target.value);
+        });
+    }
+});

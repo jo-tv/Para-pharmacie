@@ -128,7 +128,6 @@ async function syncProducts() {
 syncProducts();
 setInterval(syncProducts, 30 * 1000);
 
-
 // استدعاء أولي عند تحميل الصفحة
 syncProducts();
 
@@ -173,7 +172,9 @@ function renderProducts(list) {
       { extend: 'pdfHtml5', text: '📥 PDF', className: 'btn btn-danger' },
       { extend: 'print', text: '🖨️ Print', className: 'btn btn-secondary' },
     ],
-    language: { url: '/assets/fr-FR.json' },
+    language: {
+      url: 'https://cdn.datatables.net/plug-ins/1.13.4/i18n/fr-FR.json',
+    },
   });
 
   // إزالة وسم المنتجات الجديدة بعد العرض

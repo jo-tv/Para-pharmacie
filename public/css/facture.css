@@ -1,0 +1,154 @@
+html,
+body {
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
+body {
+  background: #f8f9fa;
+  min-height: 100vh;
+  display: flex;
+  overflow-x: hidden; /* منع overflow أفقي */
+  margin: 0;
+}
+
+h6 {
+  font-size: 1em;
+}
+
+.invoice {
+  width: 210mm;
+  min-height: 297mm;
+  max-height: 297mm; /* ما نخليهاش تزيد */
+  padding: 15mm;
+  box-sizing: border-box;
+  overflow: hidden; /* أي حاجة زايدة تتقص */
+}
+
+.logo {
+  width: 200px;
+}
+.addressMySam {
+  margin: 30px 0;
+}
+.addressDriver {
+  line-height: 30px;
+  margin: 30px 0;
+}
+.document-type {
+  text-align: right;
+  color: #444;
+}
+
+.conditions {
+  font-size: 0.7em;
+  color: #666;
+}
+
+.bottom-page {
+  font-size: 0.7em;
+}
+table {
+  text-align: center;
+  vertical-align: center;
+  font-weight: 500;
+}
+.footer {
+  margin-top: 50px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.footer p {
+  margin: 5px 0;
+}
+
+/* SIDEBAR */
+#sidebar {
+  min-width: 220px;
+  max-width: 220px;
+  background: #343a40;
+  color: #fff;
+  transition:
+    left 0.3s ease,
+    transform 0.3s ease;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: -220px; /* مخفي افتراضيا على الموبايل */
+  z-index: 1000;
+  overflow-y: auto;
+}
+#sidebar.active {
+  left: 0;
+}
+#sidebar .nav-link {
+  color: #fff;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 900;
+  border-radius: 0.5rem;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  transition: 0.25s;
+}
+#sidebar .nav-link i {
+  margin-right: 10px;
+  font-size: 20px;
+}
+#sidebar .nav-link:hover {
+  background: #495057;
+  color: #0dcaf0;
+  transform: translateX(5px);
+}
+#sidebar .nav-link.active {
+  background: #0dcaf0;
+  color: #fff;
+}
+
+/* CONTENT */
+#content {
+  flex: 1;
+  padding: 20px;
+  margin-left: 0; /* يتغير عند وجود sidebar */
+  transition: margin-left 0.3s ease;
+  width: 100%;
+}
+/* عندما نضيف هذه الكلاس يتم دف المحتوى لليمين */
+.withSidebar {
+  margin-left: 220px !important;
+}
+
+/* زر القائمة للهواتف */
+#sidebarToggle {
+  display: inline-block;
+}
+@media print {
+  body * {
+    visibility: hidden !important; /* نخفي كل العناصر */
+  }
+  .invoice,
+  .invoice * {
+    visibility: visible !important; /* نُظهر الفاتورة فقط */
+  }
+  .invoice {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 210mm; /* عرض A4 */
+    min-height: 297mm; /* طول A4 */
+    padding: 20mm;
+    box-sizing: border-box;
+  }
+
+  /* إخفاء الأزرار في الطباعة */
+  #printBtn,
+  #pdfBtn {
+    display: none !important;
+  }
+  @page {
+    size: A4;
+    margin: 0;
+  }
+}
