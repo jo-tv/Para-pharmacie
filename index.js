@@ -3,13 +3,14 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import path from 'path';
 import multer from 'multer';
+import dotenv from "dotenv";
 import { fileURLToPath } from 'url';
 import Product from './models/Product.js';
 import Sale from './models/Sale.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
+dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -18,11 +19,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // اتصال بقاعدة البيانات
 mongoose
-  .connect(
-    'mongodb+srv://josefuccef7:gHkpeNOLUzOvawuh@cluster0.qmwgw.mongodb.net/alldata?retryWrites=true&w=majority&appName=Cluster0'
-  )
-  .then(() => console.log('✅ CONNECTED TO DATABASE'))
-  .catch((err) => console.error('❌ DB CONNECTION ERROR:', err.message));
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ MongoDB connected'))
+  .catch((err) => console.error('❌ MongoDB error:', err));
 
 //   هده منطقة خاصة بدوال ثابعة لل Product
 // routes/sales.js
