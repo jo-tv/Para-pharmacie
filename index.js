@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import path from 'path';
 import multer from 'multer';
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import Product from './models/Product.js';
 import Sale from './models/Sale.js';
@@ -218,19 +218,116 @@ app.get('/facture', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'facture.html'));
 });
 
-// جلب فاتورة حسب ID
-app.get('/api/ventes', async (req, res) => {
+// ✅ API لحساب مجموع المبيعات اليومية
+app.get('/api/ventes/daily-total', async (req, res) => {
   try {
-    const ventes = await Sale.find().sort({ createdAt: -1 }).lean();
-    res.json({ ok: true, ventes });
+    // بداية اليوم (00:00)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // بداية اليوم التالي (00:00 الغد)
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    // مجموع المبيعات (totalTTC)
+    const ventes = await Sale.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: today, $lt: tomorrow },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: '$totalTTC' },
+        },
+      },
+    ]);
+
+    const totalVentes = ventes.length > 0 ? ventes[0].total : 0;
+
+    res.json({ ok: true, totalVentes });
   } catch (err) {
-    console.error('❌ Erreur lors de la récupération des ventes:', err);
+    console.error('❌ Erreur lors du calcul total des ventes:', err);
     res.status(500).json({ ok: false, message: 'Erreur serveur ❌' });
   }
 });
 
-// دالة ارسال المبيعات الى قاعدة بيانات
+// جلب فاتورة حسب ID
+// app.get('/api/ventes', async (req, res) => {
+//   try {
+//     const ventes = await Sale.find().sort({ createdAt: -1 }).lean();
+//     res.json({ ok: true, ventes });
+//   } catch (err) {
+//     console.error('❌ Erreur lors de la récupération des ventes:', err);
+//     res.status(500).json({ ok: false, message: 'Erreur serveur ❌' });
+//   }
+// });
 
+// GET /api/ventes endpoint
+app.get('/api/ventes', async (req, res) => {
+  try {
+    let query = {};
+    const searchTerm = req.query.search;
+    const startDate = req.query.startDate;
+    const endDate = req.query.endDate;
+
+    const mainConditions = [];
+    
+    // فلترة نطاق التاريخ
+    if (startDate || endDate) {
+      const dateRangeCondition = {};
+      if (startDate) {
+        dateRangeCondition.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        const endOfDay = new Date(endDate);
+        endOfDay.setHours(23, 59, 59, 999);
+        dateRangeCondition.$lte = endOfDay;
+      }
+      mainConditions.push({ createdAt: dateRangeCondition });
+    } else {
+      // إذا لم يُدخل المستخدم نطاقاً زمنياً، يتم فلترة آخر 24 ساعة تلقائياً
+      const now = new Date();
+      const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      mainConditions.push({ createdAt: { $gte: last24h } });
+    }
+
+    // فلترة البحث النصي/الرقمي
+    if (searchTerm) {
+      const isNumber = !isNaN(parseFloat(searchTerm)) && isFinite(searchTerm);
+      const regex = new RegExp(searchTerm, 'i');
+      
+      const orConditions = [];
+
+      // البحث برقم الباركود دائماً
+      orConditions.push({ ticketBarcode: regex });
+
+      if (isNumber) {
+        // إذا كان البحث رقماً، قم بالبحث عن المبلغ
+        orConditions.push({ totalTTC: parseFloat(searchTerm) });
+      }
+
+      // أضف شروط البحث إلى mainConditions
+      mainConditions.push({ $or: orConditions });
+    }
+
+    // دمج جميع الشروط في استعلام واحد
+    if (mainConditions.length > 0) {
+      query.$and = mainConditions;
+    }
+
+    const ventes = await Sale.find(query).sort({ createdAt: -1 });
+
+    res.json({ ok: true, ventes });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ ok: false, message: 'Server error' });
+  }
+});
+
+
+// دالة ارسال المبيعات الى قاعدة بيانات
 app.post('/api/vente', async (req, res) => {
   try {
     const { items, totalHT, totalTTC, date } = req.body;

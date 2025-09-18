@@ -105,7 +105,7 @@ body {
   color: #000;
 }
 .chart {
-  height: 670px;
+  height: 380px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -115,4 +115,10 @@ body {
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   margin-bottom: 20px;
   text-align: center;
+}
+.container-chart {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 10px;
 }

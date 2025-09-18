@@ -67,7 +67,7 @@
             ><i class="bi bi-cart-plus"></i> Caisse</a
           >
         </li>
-                <li>
+        <li>
           <a
             href="/ticket"
             class="nav-link"
@@ -112,7 +112,7 @@
         ></div>
 
         <!-- Charts Row -->
-        <div class="row g-4 mt-4">
+        <div class="container-chart row g-4 mt-4">
           <div class="col-lg-6">
             <h5 class="mb-3 fs-3 text-info">
               <i class="bi bi-pie-chart-fill fs-1 text-primary-emphasis"></i> Produits valides vs
@@ -125,87 +125,87 @@
               ></canvas>
             </div>
           </div>
-        </div>
-        <div class="row g-4 mt-4">
-          <h5 class="mb-3 fs-3 text-info">
-            <i class="bi bi-bar-chart-fill fs-1 text-primary-emphasis"></i> Top 5 Produits par
-            quantité
-          </h5>
-          <div class="col-lg-6">
-            <div class="card p-3 chart">
-              <canvas
-                id="topProductsChart"
-                height="200"
-              ></canvas>
+          <div class="row g-4 mt-4">
+            <h5 class="mb-3 fs-3 text-info">
+              <i class="bi bi-bar-chart-fill fs-1 text-primary-emphasis"></i> Top 5 Produits par
+              quantité
+            </h5>
+            <div class="col-lg-6">
+              <div class="card p-3 chart">
+                <canvas
+                  id="topProductsChart"
+                  height="200"
+                ></canvas>
+              </div>
             </div>
           </div>
-        </div>
-        <!-- Expired Products Table -->
-        <div class="row g-4 mt-4">
-          <h5 class="mb-3 fs-3 text-info">
-            <i class="bi bi-exclamation-circle-fill fs-1 text-primary-emphasis"></i> Produits
-            Expirés
-          </h5>
-          <div class="card row g-4 mt-4 tableChart">
-            <div class="table-responsive">
-              <table
-                class="table table-striped table-bordered"
-                id="expiredProductsTable"
-              >
-                <thead class="table-dark">
-                  <tr>
-                    <th>#</th>
-                    <th>Nom</th>
-                    <th>Code</th>
-                    <th>Quantité</th>
-                    <th>Prix (DH)</th>
-                    <th>Date d'expiration</th>
-                  </tr>
-                </thead>
-                <tbody id="expiredBody"></tbody>
-              </table>
+          <!-- Expired Products Table -->
+          <div class="row g-4 mt-4">
+            <h5 class="mb-3 fs-3 text-info">
+              <i class="bi bi-exclamation-circle-fill fs-1 text-primary-emphasis"></i> Produits
+              Expirés
+            </h5>
+            <div class="card p-3 tableChart mt-4">
+              <div class="table-responsive">
+                <table
+                  class="table table-striped table-bordered"
+                  id="expiredProductsTable"
+                >
+                  <thead class="table-dark">
+                    <tr>
+                      <th>#</th>
+                      <th>Nom</th>
+                      <th>Code</th>
+                      <th>Quantité</th>
+                      <th>Prix (DH)</th>
+                      <th>Date d'expiration</th>
+                    </tr>
+                  </thead>
+                  <tbody id="expiredBody"></tbody>
+                </table>
+              </div>
+              <nav>
+                <ul
+                  class="pagination justify-content-center"
+                  id="expiredPagination"
+                  style="overflow-y: auto"
+                ></ul>
+              </nav>
             </div>
-            <nav>
-              <ul
-                class="pagination justify-content-center"
-                id="expiredPagination"
-                style="overflow-y: auto"
-              ></ul>
-            </nav>
           </div>
-        </div>
-        <!-- Low Stock Products Table -->
-        <div class="row g-4 mt-4">
-          <h5 class="mb-3 fs-3 text-info">
-            <i class="bi bi-exclamation-triangle-fill fs-1 text-primary-emphasis"></i> Produits en
-            Stock Faible
-          </h5>
-          <div class="card p-3 tableChart mt-4">
-            <div class="table-responsive">
-              <table
-                class="table table-striped table-bordered"
-                id="lowStockTable"
-              >
-                <thead class="table-dark">
-                  <tr>
-                    <th>#</th>
-                    <th>Nom</th>
-                    <th>Code</th>
-                    <th>Quantité</th>
-                    <th>Prix (DH)</th>
-                    <th>Date d'expiration</th>
-                  </tr>
-                </thead>
-                <tbody id="lowStockBody"></tbody>
-              </table>
+          <!-- Low Stock Products Table -->
+          <div class="row g-4 mt-4">
+            <h5 class="mb-3 fs-3 text-info">
+              <i class="bi bi-exclamation-triangle-fill fs-1 text-primary-emphasis"></i> Produits en
+              Stock Faible
+            </h5>
+            <div class="card p-3 tableChart mt-4">
+              <div class="table-responsive">
+                <table
+                  class="table table-striped table-bordered"
+                  id="lowStockTable"
+                >
+                  <thead class="table-dark">
+                    <tr>
+                      <th>#</th>
+                      <th>Nom</th>
+                      <th>Code</th>
+                      <th>Quantité</th>
+                      <th>Prix (DH)</th>
+                      <th>Date d'expiration</th>
+                    </tr>
+                  </thead>
+                  <tbody id="lowStockBody"></tbody>
+                </table>
+              </div>
+              <nav>
+                <ul
+                  class="pagination justify-content-center"
+                  id="lowStockPagination"
+                  style="overflow-y: auto"
+                ></ul>
+              </nav>
             </div>
-            <nav>
-              <ul
-                class="pagination justify-content-center"
-                id="lowStockPagination"
-                style="overflow-y: auto"
-              ></ul>
-            </nav>
           </div>
         </div>
       </div>

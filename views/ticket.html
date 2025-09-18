@@ -105,15 +105,55 @@
       </nav>
 
       <!-- Recherche -->
-      <div class="container mb-4">
-        <div class="row g-2 align-items-center">
-          <!-- بحث بالاسم أو الكود -->
+      <div
+        class="container mb-4"
+        style="text-align: left"
+      >
+        <div class="search-container">
+          <label for="startDate">🔍 Date de début :</label>
+          <input
+            type="date"
+            id="startDate"
+            class="form-control"
+          />
+
+          <label for="endDate">🔍 Date de fin :</label>
+          <input
+            type="date"
+            id="endDate"
+            class="form-control"
+          />
+
+          <label for="searchTerm">🔍 Recherche par code-barres/montant :</label>
           <input
             type="text"
-            id="searchInput"
+            id="searchTerm"
             class="form-control"
-            placeholder="🔍 Nom ou Code produit..."
           />
+
+          <button
+            class="form-control btn btn-info mt-5"
+            id="searchButton"
+          >
+            بحث
+          </button>
+        </div>
+      </div>
+      totalVentes
+
+      <!-- From Uiverse.io by Yaya12085 -->
+      <div class="card">
+        <div class="content total-ventes-container">
+          <h3 class="title">Total ventes :</h3>
+          <p>
+            <span
+              id="totalVentes"
+              class="price"
+            >
+              0.00</span
+            >
+            <span class="MAD">MAD /TTC</span>
+          </p>
         </div>
       </div>
 

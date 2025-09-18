@@ -250,3 +250,47 @@ table > tr :first-child > td {
     padding: 30px;
   }
 }
+/* From Uiverse.io by Yaya12085 */
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  width: 70%;
+  padding: 20px 1px;
+  margin: 10px auto;
+  text-align: center;
+  position: relative;
+  cursor: pointer;
+  box-shadow:
+    0 10px 15px -3px rgba(33, 150, 243, 0.4),
+    0 4px 6px -4px rgba(33, 150, 243, 0.4);
+  border-radius: 10px;
+  background-color: #6b6ecc;
+  background: linear-gradient(45deg, #04051dea 0%, #2b566e 100%);
+}
+
+.content {
+  padding: 20px;
+}
+
+.content .price {
+  color: white;
+  font-weight: 800;
+  font-size: 50px;
+  text-shadow: 0px 0px 10px rgba(0, 0, 0, 0.42);
+}
+
+.content .title {
+  font-weight: 800;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.64);
+  margin-top: 10px;
+  font-size: 25px;
+  letter-spacing: 1px;
+}
+.MAD {
+  color: red;
+  margin-left: 5px;
+  font-weight: 600;
+}

@@ -30,9 +30,26 @@ window.addEventListener('load', handleResize);
 window.addEventListener('resize', handleResize);
 
 // A single function to load, filter, and display tickets
-async function loadTickets(searchTerm = '') {
+// A single function to load, filter, and display tickets
+async function loadTickets(searchTerm = '', startDate = '', endDate = '') {
   try {
-    const res = await fetch('/api/ventes');
+    let url = `/api/ventes?`;
+    if (searchTerm) {
+      url += `search=${encodeURIComponent(searchTerm)}&`;
+    }
+    if (startDate) {
+      url += `startDate=${encodeURIComponent(startDate)}&`;
+    }
+    if (endDate) {
+      url += `endDate=${encodeURIComponent(endDate)}&`;
+    }
+    
+    // Remove the trailing '&' if it exists
+    if (url.endsWith('&')) {
+      url = url.slice(0, -1);
+    }
+
+    const res = await fetch(url);
     const data = await res.json();
 
     if (!data.ok) {
@@ -41,35 +58,14 @@ async function loadTickets(searchTerm = '') {
     }
 
     let ventes = data.ventes;
-
-    // 🕒 فلترة آخر 24 ساعة
-    const now = Date.now();
-    const last24h = now - 24 * 60 * 60 * 1000; // 24 ساعة بالميلي ثانية
-    ventes = ventes.filter((sale) => {
-      const createdAt = new Date(sale.createdAt).getTime();
-      return createdAt >= last24h;
-    });
-
-    // 🔍 فلترة حسب البحث
-    if (searchTerm) {
-      const lowerCaseSearchTerm = searchTerm.toLowerCase();
-      ventes = ventes.filter((sale) => {
-        const saleDate = new Date(sale.createdAt).toISOString().slice(0, 10);
-        const totalTTC = sale.totalTTC.toFixed(2).toLowerCase();
-        const ticketBarcode = sale.ticketBarcode.toLowerCase();
-
-        return (
-          saleDate.includes(lowerCaseSearchTerm) ||
-          totalTTC.includes(lowerCaseSearchTerm) ||
-          ticketBarcode.includes(lowerCaseSearchTerm)
-        );
-      });
-    }
-
     const container = document.querySelector('.container-ticket');
     container.innerHTML = ''; // Clear old tickets
+    
+    let totalSalesSum = 0;
 
     ventes.forEach((sale) => {
+      totalSalesSum += sale.totalTTC;
+      
       const ticket = document.createElement('div');
       ticket.className = 'ticket mb-4 p-3 border'; // Full HTML for each ticket
       ticket.innerHTML = `
@@ -147,7 +143,7 @@ async function loadTickets(searchTerm = '') {
           </div>
         </div>
         <div class="footer-ticket">
-          <p class="title-footer">Nous vous remercions<br/>de votre visite</p>
+          <p class="title-footer">Nous vous remercيمd<br/>de votre visite</p>
         </div> 
       `;
 
@@ -213,7 +209,6 @@ async function loadTickets(searchTerm = '') {
         const w = window.open('', '_blank');
         w.document.write('<html><head><title>Ticket</title>' + style + '</head><body>');
         w.document.write(html);
-        w.document.write('</body></html>');
         w.document.close();
         w.onload = () => {
           w.focus();
@@ -221,7 +216,7 @@ async function loadTickets(searchTerm = '') {
           w.close();
         };
       }
-      
+
       ticket.querySelector('.btn-facture').onclick = () => {
         // حفظ بيانات البيع مؤقتاً في localStorage
         localStorage.setItem('factureData', JSON.stringify(sale));
@@ -253,6 +248,12 @@ async function loadTickets(searchTerm = '') {
         }
       };
     });
+    
+    // عرض المجموع الإجمالي
+    const totalVentesElement = document.getElementById('totalVentes');
+    if (totalVentesElement) {
+      totalVentesElement.innerText = totalSalesSum.toFixed(2);
+    }
   } catch (err) {
     console.error('Erreur front:', err);
   }
@@ -263,13 +264,33 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial load of all tickets when the page is ready
   loadTickets();
 
-  // Find the search input field by its ID
-  const searchInput = document.getElementById('searchInput');
+  // Find the search input fields
+  const searchTermInput = document.getElementById('searchTerm');
+  const startDateInput = document.getElementById('startDate');
+  const endDateInput = document.getElementById('endDate');
+  const searchButton = document.getElementById('searchButton');
+  
+  const performSearch = () => {
+      const searchTerm = searchTermInput.value;
+      const startDate = startDateInput.value;
+      const endDate = endDateInput.value;
+      loadTickets(searchTerm, startDate, endDate);
+  };
+  
+  if (searchButton) {
+      searchButton.addEventListener('click', performSearch);
+  }
 
-  // Add an event listener to the search input field for live filtering
-  if (searchInput) {
-    searchInput.addEventListener('input', (event) => {
-      loadTickets(event.target.value);
-    });
+  // Live search for the text field
+  if (searchTermInput) {
+      searchTermInput.addEventListener('input', performSearch);
+  }
+
+  // Optional: Trigger search on date input change
+  if (startDateInput) {
+      startDateInput.addEventListener('change', performSearch);
+  }
+  if (endDateInput) {
+      endDateInput.addEventListener('change', performSearch);
   }
 });

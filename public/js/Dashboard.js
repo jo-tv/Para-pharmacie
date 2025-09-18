@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ===== Render stats, tables, charts =====
-  function renderStats(products) {
+  async function renderStats(products) {
     const {
       totalProducts,
       outOfStock,
@@ -148,6 +148,16 @@ document.addEventListener('DOMContentLoaded', () => {
       expiredRows,
       lowStockRows,
     } = calculateStats(products);
+
+    // ✅ جلب مجموع المبيعات اليومية من السيرفر
+    let dailyTotal = 0;
+    try {
+      const res = await fetch('/api/ventes/daily-total');
+      const data = await res.json();
+      if (data.ok) dailyTotal = data.totalVentes;
+    } catch (err) {
+      console.error('Erreur lors du fetch daily-total:', err);
+    }
 
     if (statsRow) {
       statsRow.innerHTML = [
@@ -177,23 +187,31 @@ document.addEventListener('DOMContentLoaded', () => {
           icon: 'bi-cash-coin',
           color: 'bg-success',
         },
+        // ✅ بطاقة جديدة لمجموع المبيعات اليومية
+        {
+          title: 'Ventes du jour',
+          value: dailyTotal.toFixed(2) + ' DH',
+          icon: 'bi-cash-stack',
+          color: 'bg-info',
+        },
       ]
         .map(
           (stat) => `
-          <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card stat-card p-3 h-100">
-              <div class="d-flex align-items-center">
-                <div class=" me-3 p-2 rounded ${stat.color} text-white"
-                style="box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px, rgb(51, 51,
-                51) 0px 0px 0px 3px;"><i class="bi ${stat.icon}"></i></div>
-                <div style ="width : 50%">
-                  <h6 class="text-muted mb-1 fs-5 text-primary-emphasis">${stat.title}</h6>
-                  <h4 class="mb-0">${stat.value}</h4>
-                </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+          <div class="card stat-card p-3 h-100">
+            <div class="d-flex align-items-center">
+              <div class="me-3 p-2 rounded ${stat.color} text-white"
+                style="box-shadow: rgba(0,0,0,0.16) 0px 1px 4px, rgb(51,51,51) 0px 0px 0px 3px;">
+                <i class="bi ${stat.icon}"></i>
+              </div>
+              <div style="width: 50%">
+                <h6 class="text-muted mb-1 fs-6 text-primary-emphasis">${stat.title}</h6>
+                <h4 class="mb-0">${stat.value}</h4>
               </div>
             </div>
           </div>
-        `
+        </div>
+      `
         )
         .join('');
     }
