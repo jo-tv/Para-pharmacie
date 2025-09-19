@@ -162,7 +162,7 @@ async function loadTickets(searchTerm = '', startDate = '', endDate = '') {
         tempDiv.className = 'printable-ticket';
         tempDiv.innerHTML = ticket.outerHTML;
         tempDiv
-          .querySelectorAll('.btn-print, .btn-pdf, .btn-edit, .btn-save, .btn-delete')
+          .querySelectorAll('.btn-print, .btn-pdf, .btn-edit, .btn-save, .btn-facture ,.btn-delete')
           .forEach((btn) => btn.remove());
         const style = `
           <style>

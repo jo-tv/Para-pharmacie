@@ -23,6 +23,8 @@ h6 {
   padding: 15mm;
   box-sizing: border-box;
   overflow: hidden; /* أي حاجة زايدة تتقص */
+  border: 1px solid #000;
+  position: relative;
 }
 
 .logo {
@@ -54,10 +56,13 @@ table {
   font-weight: 500;
 }
 .footer {
-  margin-top: 50px;
   text-align: center;
   font-size: 14px;
   font-weight: 500;
+  position: absolute;
+  bottom: 0;
+  margin: 0 auto;
+  width: 90%;
 }
 
 .footer p {
