@@ -3,13 +3,14 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import path from 'path';
 import multer from 'multer';
+import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import Product from './models/Product.js';
 import Sale from './models/Sale.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
+dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -18,11 +19,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // اتصال بقاعدة البيانات
 mongoose
-  .connect(
-    'mongodb+srv://josefuccef7:gHkpeNOLUzOvawuh@cluster0.qmwgw.mongodb.net/alldata?retryWrites=true&w=majority&appName=Cluster0'
-  )
-  .then(() => console.log('✅ CONNECTED TO DATABASE'))
-  .catch((err) => console.error('❌ DB CONNECTION ERROR:', err.message));
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ MongoDB connected'))
+  .catch((err) => console.error('❌ MongoDB error:', err));
 
 //   هده منطقة خاصة بدوال ثابعة لل Product
 // routes/sales.js
@@ -188,12 +187,12 @@ app.delete('/api/products/:id', async (req, res) => {
 // PUT /api/products/:id
 app.put('/api/products/:id', async (req, res) => {
   const { id } = req.params;
-  const { name, price, quantity, barcode, expiry } = req.body;
+  const { name, price, quantity, barcode, expiry, image } = req.body;
 
   try {
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
-      { name, price, quantity, barcode, expiry },
+      { name, price, quantity, barcode, expiry, image },
       { new: true, runValidators: true } // لإرجاع المنتج بعد التحديث
     );
 
@@ -215,45 +214,187 @@ app.put('/api/products/:id', async (req, res) => {
 app.get('/ticket', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'ticket.html'));
 });
+app.get('/facture', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'facture.html'));
+});
 
-// جلب فاتورة حسب ID
-app.get('/api/ventes', async (req, res) => {
+// ✅ API لحساب مجموع المبيعات اليومية
+app.get('/api/ventes/daily-total', async (req, res) => {
   try {
-    const ventes = await Sale.find().sort({ createdAt: -1 }).lean();
-    res.json({ ok: true, ventes });
+    // بداية اليوم (00:00)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // بداية اليوم التالي (00:00 الغد)
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    // مجموع المبيعات (totalTTC)
+    const ventes = await Sale.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: today, $lt: tomorrow },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: '$totalTTC' },
+        },
+      },
+    ]);
+
+    const totalVentes = ventes.length > 0 ? ventes[0].total : 0;
+
+    res.json({ ok: true, totalVentes });
   } catch (err) {
-    console.error('❌ Erreur lors de la récupération des ventes:', err);
+    console.error('❌ Erreur lors du calcul total des ventes:', err);
     res.status(500).json({ ok: false, message: 'Erreur serveur ❌' });
   }
 });
 
-// دالة ارسال المبيعات الى قاعدة بيانات
+// جلب فاتورة حسب ID
+// app.get('/api/ventes', async (req, res) => {
+//   try {
+//     const ventes = await Sale.find().sort({ createdAt: -1 }).lean();
+//     res.json({ ok: true, ventes });
+//   } catch (err) {
+//     console.error('❌ Erreur lors de la récupération des ventes:', err);
+//     res.status(500).json({ ok: false, message: 'Erreur serveur ❌' });
+//   }
+// });
 
+// GET /api/ventes endpoint
+app.get('/api/ventes', async (req, res) => {
+  try {
+    let query = {};
+    const searchTerm = req.query.search;
+    const startDate = req.query.startDate;
+    const endDate = req.query.endDate;
+
+    const mainConditions = [];
+
+    // فلترة نطاق التاريخ
+    if (startDate || endDate) {
+  const dateRangeCondition = {};
+
+  if (startDate && !endDate) {
+    // 🟢 يوم واحد فقط
+    const startOfDay = new Date(startDate);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(startDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    dateRangeCondition.$gte = startOfDay;
+    dateRangeCondition.$lte = endOfDay;
+  } else {
+    // 🟢 نطاق بين تاريخين
+    if (startDate) {
+      const startOfDay = new Date(startDate);
+      startOfDay.setHours(0, 0, 0, 0);
+      dateRangeCondition.$gte = startOfDay;
+    }
+
+    if (endDate) {
+      const endOfDay = new Date(endDate);
+      endOfDay.setHours(23, 59, 59, 999);
+      dateRangeCondition.$lte = endOfDay;
+    }
+  }
+
+  mainConditions.push({ createdAt: dateRangeCondition });
+} else {
+  // 🟢 إذا لم يُدخل المستخدم أي تاريخ → اليوم الحالي من 00:00 إلى 23:59:59
+  const now = new Date();
+
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
+
+  const endOfToday = new Date(now);
+  endOfToday.setHours(23, 59, 59, 999);
+
+  mainConditions.push({
+    createdAt: { $gte: startOfToday, $lte: endOfToday }
+  });
+}
+
+    // فلترة البحث النصي/الرقمي
+    if (searchTerm) {
+      const isNumber = !isNaN(parseFloat(searchTerm)) && isFinite(searchTerm);
+      const regex = new RegExp(searchTerm, 'i');
+
+      const orConditions = [];
+
+      // البحث برقم الباركود دائماً
+      orConditions.push({ ticketBarcode: regex });
+
+      if (isNumber) {
+        // إذا كان البحث رقماً، قم بالبحث عن المبلغ
+        orConditions.push({ totalTTC: parseFloat(searchTerm) });
+      }
+
+      // أضف شروط البحث إلى mainConditions
+      mainConditions.push({ $or: orConditions });
+    }
+
+    // دمج جميع الشروط في استعلام واحد
+    if (mainConditions.length > 0) {
+      query.$and = mainConditions;
+    }
+
+    const ventes = await Sale.find(query).sort({ createdAt: -1 });
+
+    res.json({ ok: true, ventes });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ ok: false, message: 'Server error' });
+  }
+});
+
+// دالة ارسال المبيعات الى قاعدة بيانات
 app.post('/api/vente', async (req, res) => {
   try {
     const { items, totalHT, totalTTC, date } = req.body;
 
-    console.log('Body reçu du frontend:', req.body);
+    console.log('📩 Body reçu du frontend:', req.body);
+
+    // 🔹 دالة توليد باركود EAN13 (داخل نفس الملف)
+    function generateEAN13() {
+      let code = '';
+      for (let i = 0; i < 12; i++) code += Math.floor(Math.random() * 10);
+      let sum = 0;
+      for (let i = 0; i < 12; i++) sum += parseInt(code[i]) * (i % 2 === 0 ? 1 : 3);
+      const checkDigit = (10 - (sum % 10)) % 10;
+      return code + checkDigit;
+    }
 
     // 1️⃣ تحديث الكميات لكل منتج
     for (const item of items) {
       const product = await Product.findById(item._id);
       if (!product) {
         console.warn(`⚠️ Produit non trouvé: ${item.name}`);
-        continue; // نتجاوز المنتج الغير موجود
+        continue;
       }
 
-      // نقص الكمية حسب الفاتورة، يمكن أن تصبح سالبة
       const oldQuantity = product.quantity;
       product.quantity -= item.qty;
-
       await product.save();
+
       console.log(
-        `Produit "${item.name}" mis à jour: ancienne quantité = ${oldQuantity}, vendue = ${item.qty}, nouvelle quantité = ${product.quantity}`
+        `🛒 Produit "${item.name}" mis à jour: ancienne quantité = ${oldQuantity}, vendue = ${item.qty}, nouvelle quantité = ${product.quantity}`
       );
     }
 
-    // 2️⃣ حفظ الفاتورة
+    // 2️⃣ توليد باركود للتذكرة
+    let ticketBarcode;
+    let exists = true;
+    while (exists) {
+      ticketBarcode = generateEAN13();
+      exists = await Sale.findOne({ ticketBarcode }); // نتأكد أنه مش مكرر
+    }
+
+    // 3️⃣ حفظ الفاتورة
     const newSale = new Sale({
       items: items.map((i) => ({
         productId: i._id,
@@ -264,6 +405,7 @@ app.post('/api/vente', async (req, res) => {
       })),
       totalHT,
       totalTTC,
+      ticketBarcode, // ⬅️ يتخزن في DB مع باقي بيانات التذكرة
       createdAt: date ? new Date(date) : new Date(),
     });
 
@@ -271,7 +413,11 @@ app.post('/api/vente', async (req, res) => {
 
     console.log('✅ Vente confirmée et enregistrée:', newSale);
 
-    res.json({ ok: true, message: 'Vente confirmée et enregistrée ✅', sale: newSale });
+    res.json({
+      ok: true,
+      message: 'Vente confirmée et enregistrée ✅',
+      sale: newSale,
+    });
   } catch (err) {
     console.error('❌ Erreur lors de la sauvegarde vente:', err);
     res.status(500).json({ ok: false, message: 'Erreur serveur ❌' });

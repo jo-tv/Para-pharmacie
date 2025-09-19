@@ -202,11 +202,14 @@ function renderProducts(list = products) {
     col.innerHTML = `
       <div class="card product-card">
         <img src="${
-          p.image || 'https://via.placeholder.com/150'
+          p.image ||
+          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOQOzK3if8ubYIFpjwxQ8kf6D7XYHZfbhD-iMvupcsBQ&amp;s=10'
         }" class="card-img-top" alt="${escapeHtml(p.name || 'Produit')}">
         <div class="card-body d-flex flex-column">
           <h5 class="card-title text-truncate">${escapeHtml(p.name || '')}</h5>
-          <p class="price">${p.price !== undefined ? p.price + ' DH' : '-'}</p>
+          <p class="price">
+            ${p.price !== undefined ? p.price.toFixed(2) + ' DH' : '-'}
+          </p>
           <p class="quantity">Quantité: <span class="qty">${p.quantity ?? '-'}</span></p>
           <p class="expiry">Expiration: ${expiryDate}</p>
 
@@ -240,6 +243,7 @@ function renderProducts(list = products) {
         document.getElementById('editExpiry').value = p.expiry
           ? new Date(p.expiry).toISOString().slice(0, 10)
           : '';
+          document.getElementById('editImgeUrl').value = p.image;
         if (editModal) editModal.show();
       });
     }
@@ -279,6 +283,7 @@ if (form) {
     e.preventDefault();
 
     const imageInput = document.getElementById('imageFile');
+    const imageUrl2 = document.getElementById('imageUrl2').value;
     const file = imageInput?.files?.[0];
     let imageUrl = '';
 
@@ -297,7 +302,7 @@ if (form) {
       price: parseFloat(document.getElementById('price').value) || 0,
       quantity: parseInt(document.getElementById('quantity').value) || 0,
       expiry: document.getElementById('expiry').value,
-      image: imageUrl,
+      image: imageUrl || imageUrl2,
     };
 
     try {
@@ -336,6 +341,7 @@ if (editForm) {
       price: parseFloat(document.getElementById('editPrice').value) || 0,
       quantity: parseInt(document.getElementById('editQuantity').value) || 0,
       expiry: document.getElementById('editExpiry').value,
+      image: document.getElementById('editImgeUrl').value,
     };
     try {
       const res = await fetch(`/api/products/${id}`, {

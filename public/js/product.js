@@ -171,6 +171,17 @@ function renderProducts(list) {
       { extend: 'csvHtml5', text: '📥 CSV', className: 'btn btn-info' },
       { extend: 'pdfHtml5', text: '📥 PDF', className: 'btn btn-danger' },
       { extend: 'print', text: '🖨️ Print', className: 'btn btn-secondary' },
+      {
+        text: '📃 Clear & Reload', // نص الزر
+        className: 'btn btn-warning', // لون الزر
+        action: function (e, dt, node, config) {
+          // مسح بيانات محددة من localStorage
+          localStorage.removeItem('productsData'); // أو localStorage.clear() لمسح الكل
+
+          // إعادة تحميل الصفحة
+          location.reload();
+        },
+      },
     ],
     language: {
       url: 'https://cdn.datatables.net/plug-ins/1.13.4/i18n/fr-FR.json',

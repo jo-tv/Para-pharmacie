@@ -124,6 +124,17 @@ table {
 #sidebarToggle {
   display: inline-block;
 }
+@media (min-width: 768px) {
+  #sidebar {
+    left: 0;
+  }
+  #sidebar.active {
+    left: 0;
+  }
+  #sidebarToggle {
+    display: none;
+  } /* إخفاء زر التبديل على ديسكتوب */
+}
 @media print {
   body * {
     visibility: hidden !important; /* نخفي كل العناصر */

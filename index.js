@@ -187,12 +187,12 @@ app.delete('/api/products/:id', async (req, res) => {
 // PUT /api/products/:id
 app.put('/api/products/:id', async (req, res) => {
   const { id } = req.params;
-  const { name, price, quantity, barcode, expiry } = req.body;
+  const { name, price, quantity, barcode, expiry, image } = req.body;
 
   try {
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
-      { name, price, quantity, barcode, expiry },
+      { name, price, quantity, barcode, expiry, image },
       { new: true, runValidators: true } // لإرجاع المنتج بعد التحديث
     );
 
@@ -273,31 +273,57 @@ app.get('/api/ventes', async (req, res) => {
     const endDate = req.query.endDate;
 
     const mainConditions = [];
-    
+
     // فلترة نطاق التاريخ
     if (startDate || endDate) {
-      const dateRangeCondition = {};
-      if (startDate) {
-        dateRangeCondition.$gte = new Date(startDate);
-      }
-      if (endDate) {
-        const endOfDay = new Date(endDate);
-        endOfDay.setHours(23, 59, 59, 999);
-        dateRangeCondition.$lte = endOfDay;
-      }
-      mainConditions.push({ createdAt: dateRangeCondition });
-    } else {
-      // إذا لم يُدخل المستخدم نطاقاً زمنياً، يتم فلترة آخر 24 ساعة تلقائياً
-      const now = new Date();
-      const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-      mainConditions.push({ createdAt: { $gte: last24h } });
+  const dateRangeCondition = {};
+
+  if (startDate && !endDate) {
+    // 🟢 يوم واحد فقط
+    const startOfDay = new Date(startDate);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(startDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    dateRangeCondition.$gte = startOfDay;
+    dateRangeCondition.$lte = endOfDay;
+  } else {
+    // 🟢 نطاق بين تاريخين
+    if (startDate) {
+      const startOfDay = new Date(startDate);
+      startOfDay.setHours(0, 0, 0, 0);
+      dateRangeCondition.$gte = startOfDay;
     }
+
+    if (endDate) {
+      const endOfDay = new Date(endDate);
+      endOfDay.setHours(23, 59, 59, 999);
+      dateRangeCondition.$lte = endOfDay;
+    }
+  }
+
+  mainConditions.push({ createdAt: dateRangeCondition });
+} else {
+  // 🟢 إذا لم يُدخل المستخدم أي تاريخ → اليوم الحالي من 00:00 إلى 23:59:59
+  const now = new Date();
+
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
+
+  const endOfToday = new Date(now);
+  endOfToday.setHours(23, 59, 59, 999);
+
+  mainConditions.push({
+    createdAt: { $gte: startOfToday, $lte: endOfToday }
+  });
+}
 
     // فلترة البحث النصي/الرقمي
     if (searchTerm) {
       const isNumber = !isNaN(parseFloat(searchTerm)) && isFinite(searchTerm);
       const regex = new RegExp(searchTerm, 'i');
-      
+
       const orConditions = [];
 
       // البحث برقم الباركود دائماً
@@ -325,7 +351,6 @@ app.get('/api/ventes', async (req, res) => {
     res.status(500).json({ ok: false, message: 'Server error' });
   }
 });
-
 
 // دالة ارسال المبيعات الى قاعدة بيانات
 app.post('/api/vente', async (req, res) => {

@@ -69,7 +69,7 @@
             ><i class="bi bi-cart-plus"></i> Caisse</a
           >
         </li>
-                <li>
+        <li>
           <a
             href="/ticket"
             class="nav-link"
@@ -170,7 +170,8 @@
             <div class="col-md-4">
               <label class="form-label">Prix (DH)</label>
               <input
-                type="text"
+                type="number"
+                step="0.01"
                 class="form-control"
                 id="price"
                 required
@@ -201,6 +202,14 @@
                 class="form-control"
                 id="imageFile"
                 accept="image/*"
+              />
+            </div>
+            <div class="col-12">
+              <label class="form-label">ImageUrl (optionnel)</label>
+              <input
+                type="text"
+                class="form-control"
+                id="imageUrl2"
               />
             </div>
             <div class="col-12">
@@ -300,6 +309,14 @@
                 id="editExpiry"
                 class="form-control"
                 required
+              />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">ImageUrl (optionnel)</label>
+              <input
+                type="text"
+                class="form-control"
+                id="editImgeUrl"
               />
             </div>
           </div>
