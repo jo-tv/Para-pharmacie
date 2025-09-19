@@ -6,7 +6,7 @@ body {
 }
 body {
   background: #f8f9fa;
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   overflow-x: hidden; /* منع overflow أفقي */
   margin: 0;
@@ -21,7 +21,6 @@ h6 {
   height: 100vh;
   padding: 15mm;
   box-sizing: border-box;
-  overflow: hidden; /* أي حاجة زايدة تتقص */
   position: relative;
   margin: 0 auto;
 }
@@ -146,6 +145,13 @@ table {
   .invoice,
   .invoice * {
     visibility: visible !important; /* نُظهر الفاتورة فقط */
+  width: 90%;
+  height: 100vh;
+  padding: 15mm;
+  box-sizing: border-box;
+  position: relative;
+  margin: 0 auto;
+    
   }
   .invoice {
     position: absolute;
