@@ -122,3 +122,10 @@ body {
   justify-content: space-around;
   padding: 10px;
 }
+@media (min-width: 992px){
+  .col-lg-6{
+    flex: 0 0 auto;
+    width: 70%;
+    margin: 0 auto;
+  }
+}
