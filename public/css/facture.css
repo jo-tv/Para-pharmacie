@@ -143,6 +143,8 @@ table {
   .invoice,
   .invoice * {
     visibility: visible !important; /* نُظهر الفاتورة فقط */
+   left: -220px; 
+    
   }
   .invoice {
     position: absolute;
