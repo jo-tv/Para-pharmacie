@@ -205,8 +205,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <i class="bi ${stat.icon}"></i>
               </div>
               <div style="width: 50%">
-                <h6 class="text-muted mb-1 fs-6 text-primary-emphasis">${stat.title}</h6>
-                <h4 class="mb-0">${stat.value}</h4>
+                <h6 class="text-muted mb-1 text-primary-emphasis">${stat.title}</h6>
+                <h6 class="mb-0">${stat.value}</h6>
               </div>
             </div>
           </div>
