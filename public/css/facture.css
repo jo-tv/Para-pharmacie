@@ -3,6 +3,7 @@ body {
   height: 100%;
   padding: 0;
   margin: 0;
+  font-family: 'Roboto', sans-serif;
 }
 
 body {
@@ -50,7 +51,10 @@ h6 {
   text-align: right;
   color: #444;
 }
-
+.barcode {
+  width: 100%;
+  text-align: center;
+}
 .conditions {
   font-size: 0.7em;
   color: #666;
@@ -90,12 +94,12 @@ table {
   height: 100vh;
   position: fixed;
   top: 0;
-  left: -220px; /* مخفي افتراضيا على الموبايل */
+  left: -220px; /* مخفي افتراضياً */
   z-index: 1000;
   overflow-y: auto;
 }
 #sidebar.active {
-  left: 0;
+  left: 0; /* يظهر عند التفعيل */
 }
 #sidebar .nav-link {
   color: #fff;
@@ -129,7 +133,7 @@ table {
   transition: margin-left 0.3s ease;
   width: 100%;
 }
-/* عندما نضيف هذه الكلاس يتم دف المحتوى لليمين */
+/* عندما نضيف هذه الكلاس يتم دفع المحتوى لليمين */
 .withSidebar {
   margin-left: 220px !important;
 }
@@ -137,6 +141,29 @@ table {
 /* زر القائمة للهواتف */
 #sidebarToggle {
   display: inline-block;
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 1100;
+  background: #0dcaf0;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+/* عندما تكون الشاشة كبيرة، نخلي sidebar مفتوح */
+@media (min-width: 768px) {
+  #sidebar {
+    left: 0 !important; /* يظهر دائماً */
+  }
+  #content {
+    margin-left: 220px;
+  }
+  #sidebarToggle {
+    display: none; /* إخفاء زر التبديل على ديسكتوب */
+  }
 }
 
 /* ===== للطباعة ===== */
@@ -151,17 +178,20 @@ table {
   #printBtn,
   #pdfBtn,
   #sidebar,
+  .navbar-brand,
   #sidebarToggle {
     display: none !important;
   }
 
   .invoice {
+    font-family: 'Roboto', sans-serif;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     position: relative;
-    width: 210mm; /* عرض A4 */
-    min-height: 297mm; /* طول A4 */
+    right: 220px;
+    width: 310mm; /* عرض A4 */
+    min-height: 397mm; /* طول A4 */
     padding: 20mm;
     box-sizing: border-box;
     margin: 0 auto;
@@ -173,6 +203,10 @@ table {
     text-align: center;
     font-size: 14px;
     font-weight: 500;
+  }
+  .barcode {
+    position: relative;
+    left: 10%;
   }
 
   @page {
