@@ -23,6 +23,7 @@ h6 {
   padding: 15mm;
   box-sizing: border-box;
   overflow: hidden; /* أي حاجة زايدة تتقص */
+  margin: 0 auto;
 }
 
 .logo {
