@@ -1,4 +1,4 @@
-JsBarcode('.barcode').init();
+
 
 // Sidebar
 const sidebar = document.getElementById('sidebar');

@@ -4,6 +4,7 @@ body {
   padding: 0;
   margin: 0;
 }
+
 body {
   background: #f8f9fa;
   min-height: 100vh;
@@ -16,26 +17,35 @@ h6 {
   font-size: 1em;
 }
 
+/* ✅ الفاتورة */
 .invoice {
   width: 210mm;
   min-height: 297mm;
   max-height: 297mm; /* ما نخليهاش تزيد */
   padding: 15mm;
   box-sizing: border-box;
-  overflow: hidden; /* أي حاجة زايدة تتقص */
+  overflow: hidden;
   margin: 0 auto;
+
+  /* خليها flex باش الفوتر ينزل لتحت */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .logo {
   width: 200px;
 }
+
 .addressMySam {
   margin: 30px 0;
 }
+
 .addressDriver {
   line-height: 30px;
   margin: 30px 0;
 }
+
 .document-type {
   text-align: right;
   color: #444;
@@ -49,16 +59,19 @@ h6 {
 .bottom-page {
   font-size: 0.7em;
 }
+
 table {
   text-align: center;
   vertical-align: center;
   font-weight: 500;
 }
+
+/* ✅ الفوتر */
 .footer {
-  margin-top: 50px;
   text-align: center;
   font-size: 14px;
   font-weight: 500;
+  margin-top: auto; /* يضمن يكون أسفل */
 }
 
 .footer p {
@@ -125,42 +138,43 @@ table {
 #sidebarToggle {
   display: inline-block;
 }
-@media (min-width: 768px) {
-  #sidebar {
-    left: 0;
-  }
-  #sidebar.active {
-    left: 0;
-  }
-  #sidebarToggle {
-    display: none;
-  } /* إخفاء زر التبديل على ديسكتوب */
-}
+
+/* ===== للطباعة ===== */
 @media print {
-  body * {
-    visibility: hidden !important; /* نخفي كل العناصر */
+  body {
+    margin: 0;
+    padding: 0;
+    background: #fff;
   }
-  .invoice,
-  .invoice * {
-    visibility: visible !important; /* نُظهر الفاتورة فقط */
-   left: -220px; 
-    
+
+  /* ✅ إخفاء العناصر اللي ما بغيتش يطبعو */
+  #printBtn,
+  #pdfBtn,
+  #sidebar,
+  #sidebarToggle {
+    display: none !important;
   }
+
   .invoice {
-    position: absolute;
-    left: 0;
-    top: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
     width: 210mm; /* عرض A4 */
     min-height: 297mm; /* طول A4 */
     padding: 20mm;
     box-sizing: border-box;
+    margin: 0 auto;
+    page-break-after: always; /* كل فاتورة في صفحة مستقلة */
   }
 
-  /* إخفاء الأزرار في الطباعة */
-  #printBtn,
-  #pdfBtn {
-    display: none !important;
+  .footer {
+    margin-top: auto; /* يخلي الفوتر ينزل لأسفل الصفحة */
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
   }
+
   @page {
     size: A4;
     margin: 0;
