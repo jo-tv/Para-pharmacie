@@ -17,14 +17,13 @@ h6 {
 }
 
 .invoice {
-  width: 210mm;
-  min-height: 297mm;
-  max-height: 297mm; /* ما نخليهاش تزيد */
+  width: 90%;
+  height: 100vh;
   padding: 15mm;
   box-sizing: border-box;
   overflow: hidden; /* أي حاجة زايدة تتقص */
-  border: 1px solid #000;
   position: relative;
+  margin: 0 auto;
 }
 
 .logo {
