@@ -115,18 +115,34 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'login.html'));
 });
 
+
+
+// 🔹 تسجيل الدخول
 app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-  const user = await User.findOne({ username });
+  try {
+    const { password } = req.body;
 
-  if (!user) return res.status(401).json({ ok: false, message: 'No user found.' });
+    // 🟢 جلب المستخدم من قاعدة البيانات (عندك مستخدم واحد فقط مسجل)
+    const user = await User.findOne({});
+    if (!user) {
+      return res.status(401).send('❌ لا يوجد مستخدم مسجل.');
+    }
 
-  const match = await bcrypt.compare(password, user.password);
-  if (!match) return res.status(401).json({ ok: false, message: 'Invalid password.' });
+    // 🔐 التحقق من كلمة السر
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(401).send('❌ كلمة السر غير صحيحة.');
+    }
 
-  req.session.userId = user._id;
+    // ✅ نجاح → إنشاء session
+    req.session.userId = user._id;
 
-  res.status(200).json({ ok: true, message: 'Logged in successfully.' });
+    // 🔀 إعادة التوجيه للصفحة الرئيسية
+    res.redirect('/');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('❌ خطأ في الخادم.');
+  }
 });
 app.get('/', isAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'Dashboard.html'));
