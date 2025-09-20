@@ -39,13 +39,13 @@ app.use(
     saveUninitialized: true,
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URI,
-      ttl: 6 * 60 * 60 // مدة الجلسة بالثواني → 6 ساعات
+      ttl: 6 * 60 * 60, // مدة الجلسة بالثواني → 6 ساعات
     }),
     cookie: {
       maxAge: 6 * 60 * 60 * 1000, // مدة الكوكي بالمللي ثانية → 6 ساعات
-      httpOnly: true,             // لمنع الوصول للكوكي من JS
-      secure: process.env.NODE_ENV === 'production' // كوكي آمن في الإنتاج فقط
-    }
+      httpOnly: true, // لمنع الوصول للكوكي من JS
+      secure: process.env.NODE_ENV === 'production', // كوكي آمن في الإنتاج فقط
+    },
   })
 );
 
@@ -109,6 +109,7 @@ app.post('/regi', async (req, res) => {
     res.status(500).send('❌ Server error');
   }
 });
+
 app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'login.html'));
 });
@@ -117,19 +118,13 @@ app.post('/login', async (req, res) => {
   const { username, password } = req.body;
   const user = await User.findOne({ username });
 
-  if (!user) {
-    return res.status(401).json({ ok: false, message: 'No user found.' });
-  }
+  if (!user) return res.status(401).json({ ok: false, message: 'No user found.' });
 
   const match = await bcrypt.compare(password, user.password);
-  if (!match) {
-    return res.status(401).json({ ok: false, message: 'Invalid password.' });
-  }
+  if (!match) return res.status(401).json({ ok: false, message: 'Invalid password.' });
 
-  // حفظ session
   req.session.userId = user._id;
 
-  // إرجاع JSON مع العلم أنه ناجح
   res.status(200).json({ ok: true, message: 'Logged in successfully.' });
 });
 app.get('/', isAuth, (req, res) => {
