@@ -16,8 +16,6 @@ import connectMongoDBSession from 'connect-mongodb-session';
 const MongoDBStore = connectMongoDBSession(session);
 import rateLimit from 'express-rate-limit';
 
-
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config();
@@ -42,17 +40,12 @@ const store = new MongoDBStore({
 });
 // ✅ إعداد session
 app.use(
-  session({
-    secret: 'mySuperSecretKeyhellobrder166628', // 🔑 استعمل مفتاح قوي (يفضل تخليه في .env)
-    resave: false, // ما يعيدش حفظ session إذا ما تغيرتش
-    saveUninitialized: false, // ما يخزنش sessions فارغة
-    store: store, // يربط الجلسة مع MongoDB
-    cookie: {
-      maxAge: 6 * 60 * 60 * 1000, // (6 ساعات) عمر الكوكي
-      httpOnly: true, // يمنع الوصول للكوكي من JavaScript
-      secure: process.env.NODE_ENV === 'production', // لازم https في الإنتاج
-    },
-  })
+    session({
+        secret: "mySuperSecretKeyhellobrder166628", // مفتاح تشفير الجلسات
+        resave: false, // لا تعيد حفظ الجلسة إذا لم يتم تعديلها
+        saveUninitialized: false, // لا تحفظ الجلسات الفارغة
+        store: store // ربط الجلسة بمخزن MongoDB
+    })
 );
 
 // Middleware للتحقق من تسجيل الدخول
