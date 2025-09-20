@@ -51,3 +51,27 @@ const displayThemeButtons = () => {
 };
 
 displayThemeButtons();
+
+
+      // قراءة الرسالة من query parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const message = urlParams.get('message');
+
+      if (message) {
+        const container = document.getElementById('message-container');
+        const div = document.createElement('div');
+        div.className = 'message ' + (message.includes('✅') ? 'success' : 'error');
+        div.textContent = message;
+        container.appendChild(div);
+
+        // حذف الرسالة من URL بعد العرض
+        history.replaceState(null, '', window.location.pathname);
+
+        // تحويل تلقائي بعد 2 ثانية لو كانت رسالة نجاح
+        if (message.includes('✅')) {
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 2000);
+        }
+      }
+    

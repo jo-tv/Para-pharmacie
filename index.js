@@ -22,8 +22,12 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
 app.use(express.static(path.join(__dirname, 'public')));
-app.set('view engine', 'ejs');
+// عرض ملفات ثابتة من الجذر
+app.use(express.static(path.join(__dirname)));
+// أو إذا تبي مجلد مخصص مثلاً public/
+// app.use(express.static(path.join(__dirname, 'public')));
 app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs'); // أو pug أو
 // ✅ إعداد session
 app.use(
   session({
