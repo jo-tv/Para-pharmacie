@@ -32,22 +32,22 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs'); // أو pug أو
 
 // ✅ إعداد session
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || 'secret_long_string',
-    resave: false,
-    saveUninitialized: true,
-    store: MongoStore.create({
-      mongoUrl: process.env.MONGO_URI,
-      ttl: 6 * 60 * 60, // 6 ساعات
-    }),
-    cookie: {
-      maxAge: 6 * 60 * 60 * 1000,
-      secure: process.env.NODE_ENV === 'production', // ✅ فقط في production
-      sameSite: 'lax', // مهم للتأكد من إرسال الكوكي في requests من نفس الموقع
-    },
-  })
-);
+// app.use(
+//   session({
+//     secret: process.env.SESSION_SECRET || 'secret_long_string',
+//     resave: false,
+//     saveUninitialized: true,
+//     store: MongoStore.create({
+//       mongoUrl: process.env.MONGO_URI,
+//       ttl: 6 * 60 * 60, // 6 ساعات
+//     }),
+//     cookie: {
+//       maxAge: 6 * 60 * 60 * 1000,
+//       secure: process.env.NODE_ENV === 'production', // ✅ فقط في production
+//       sameSite: 'lax', // مهم للتأكد من إرسال الكوكي في requests من نفس الموقع
+//     },
+//   })
+// );
 
 // Middleware للتحقق من تسجيل الدخول
 function isAuth(req, res, next) {
