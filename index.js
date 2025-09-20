@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 import bcrypt from 'bcrypt';
 import bodyParser from 'body-parser';
 import session from 'express-session';
+import MongoStore from 'connect-mongo';
 import Product from './models/Product.js';
 import Sale from './models/Sale.js';
 import User from './models/User.js';
@@ -22,19 +23,29 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.urlencoded({ extended: true }));
 // عرض ملفات ثابتة من الجذر
 app.use(express.static(path.join(__dirname)));
 // أو إذا تبي مجلد مخصص مثلاً public/
 // app.use(express.static(path.join(__dirname, 'public')));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs'); // أو pug أو
+
 // ✅ إعداد session
 app.use(
   session({
-    secret: 'mySecretKey', // غيّرها لقيمة قوية
+    secret: process.env.SESSION_SECRET || 'سلسلة_سرية_طويلة_وصعبة_التخمين_لأفضل_أمان', // secret قوي
     resave: false,
-    saveUninitialized: false,
-    cookie: { maxAge: 1000 * 60 * 60 * 12 }, // 12 ساعة
+    saveUninitialized: true,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URI,
+      ttl: 6 * 60 * 60 // مدة الجلسة بالثواني → 6 ساعات
+    }),
+    cookie: {
+      maxAge: 6 * 60 * 60 * 1000, // مدة الكوكي بالمللي ثانية → 6 ساعات
+      httpOnly: true,             // لمنع الوصول للكوكي من JS
+      secure: process.env.NODE_ENV === 'production' // كوكي آمن في الإنتاج فقط
+    }
   })
 );
 
@@ -84,10 +95,10 @@ app.post('/regi', async (req, res) => {
     // ✅ رسالة HTML أنيقة مع تحويل بعد 2 ثانية
     // بعد نجاح التسجيل
     req.session.message = '✅ New user registered successfully!';
-    
+
     const message = req.session.message || null;
-  req.session.message = null;
-    
+    req.session.message = null;
+
     if (message) {
       // تحويل الرسالة إلى query parameter
       return res.redirect(`/regi?message=${encodeURIComponent(message)}`);
@@ -98,40 +109,29 @@ app.post('/regi', async (req, res) => {
     res.status(500).send('❌ Server error');
   }
 });
-
 app.get('/login', (req, res) => {
-  const message = req.session.message || null;
-  req.session.message = null;
-
-  if (message) {
-    // تحويل الرسالة إلى query parameter
-    return res.redirect(`/login?message=${encodeURIComponent(message)}`);
-  }
   res.sendFile(path.join(__dirname, 'views', 'login.html'));
 });
 
 app.post('/login', async (req, res) => {
-  const { password } = req.body;
-  const user = await User.findOne();
+  const { username, password } = req.body;
+  const user = await User.findOne({ username });
 
   if (!user) {
-    req.session.message = '❌ No user found, please register first.';
-    return res.redirect('/login'); // ⬅️ إعادة توجيه لعرض الرسالة
+    return res.status(401).json({ ok: false, message: 'No user found.' });
   }
 
   const match = await bcrypt.compare(password, user.password);
   if (!match) {
-    req.session.message = '❌ Invalid password.';
-    return res.redirect('/login'); // ⬅️ إعادة توجيه لعرض الرسالة
+    return res.status(401).json({ ok: false, message: 'Invalid password.' });
   }
 
-  // ✅ حفظ session
+  // حفظ session
   req.session.userId = user._id;
 
-  // ✅ إعادة التوجيه إلى الصفحة الرئيسية
-  res.redirect('/');
+  // إرجاع JSON مع العلم أنه ناجح
+  res.status(200).json({ ok: true, message: 'Logged in successfully.' });
 });
-
 app.get('/', isAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'Dashboard.html'));
 });

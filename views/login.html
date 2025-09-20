@@ -40,11 +40,13 @@
           <form
             action="/login"
             method="post"
+            id="loginForm"
           >
             <input
               type="password"
               placeholder="PASSWORD"
               name="password"
+              id="password"
             />
             <button class="opacity">SUBMIT</button>
           </form>
@@ -63,8 +65,51 @@
       </div>
       <div class="theme-btn-container"></div>
     </section>
-    <button id="installBtn" style="display:none">تثبيت التطبيق</button>
+    <button
+      id="installBtn"
+      style="display: none"
+    >
+      تثبيت التطبيق
+    </button>
     <script src="js/login.js"></script>
+    <script>
+      // قراءة الرسالة من query parameter
+      const loginForm = document.getElementById('loginForm');
+
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        
+        const password = document.getElementById('password').value;
+
+        try {
+          const res = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password }),
+          });
+
+          const data = await res.json();
+
+          const container = document.getElementById('message-container');
+          container.innerHTML = ''; // إزالة أي رسائل سابقة
+
+          const div = document.createElement('div');
+          div.className = 'message ' + (data.ok ? 'success' : 'error');
+          div.textContent = data.message;
+          container.appendChild(div);
+
+          // تحويل تلقائي بعد 2 ثانية لو كانت رسالة نجاح
+          if (data.ok) {
+            setTimeout(() => {
+              window.location.href = '/';
+            }, 2000);
+          }
+        } catch (err) {
+          console.error('Error during login:', err);
+        }
+      });
+    </script>
     <script
       src="js/app.js"
       type="text/javascript"
