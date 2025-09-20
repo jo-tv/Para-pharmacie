@@ -34,17 +34,18 @@ app.set('view engine', 'ejs'); // أو pug أو
 // ✅ إعداد session
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || 'سلسلة_سرية_طويلة_وصعبة_التخمين_لأفضل_أمان', // secret قوي
+    secret: process.env.SESSION_SECRET || 'secret_long_string',
     resave: false,
     saveUninitialized: true,
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URI,
-      ttl: 6 * 60 * 60, // مدة الجلسة بالثواني → 6 ساعات
+      ttl: 6 * 60 * 60, // 6 ساعات
     }),
     cookie: {
-      maxAge: 6 * 60 * 60 * 1000, // مدة الكوكي بالمللي ثانية → 6 ساعات
-      httpOnly: true, // لمنع الوصول للكوكي من JS
-      secure: process.env.NODE_ENV === 'production', // كوكي آمن في الإنتاج فقط
+      maxAge: 6 * 60 * 60 * 1000,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // ✅ فقط في production
+      sameSite: 'lax', // مهم للتأكد من إرسال الكوكي في requests من نفس الموقع
     },
   })
 );
