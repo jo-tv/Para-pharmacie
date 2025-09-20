@@ -43,7 +43,6 @@ app.use(
     }),
     cookie: {
       maxAge: 6 * 60 * 60 * 1000,
-      httpOnly: true,
       secure: process.env.NODE_ENV === 'production', // ✅ فقط في production
       sameSite: 'lax', // مهم للتأكد من إرسال الكوكي في requests من نفس الموقع
     },
@@ -114,8 +113,6 @@ app.post('/regi', async (req, res) => {
 app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'login.html'));
 });
-
-
 
 // 🔹 تسجيل الدخول
 app.post('/login', async (req, res) => {
