@@ -76,16 +76,9 @@
         </li>
         <li>
           <a
-            href="#"
+            href="/logout"
             class="nav-link"
-            ><i class="bi bi-people"></i> Clients</a
-          >
-        </li>
-        <li>
-          <a
-            href="#"
-            class="nav-link"
-            ><i class="bi bi-gear"></i> Paramètres</a
+            ><i class="bi bi-box-arrow-right"></i> LogOut</a
           >
         </li>
       </ul>
@@ -107,17 +100,17 @@
       <!-- Cards -->
       <div class="container">
         <div
-          class="row g-4"
+          class="row g-4 cardVue"
           id="statsRow"
         ></div>
 
         <!-- Charts Row -->
         <div class="container-chart row g-4 mt-4">
+          <h5 class="mb-3 fs-3 text-info">
+            <i class="bi bi-pie-chart-fill fs-1 text-primary-emphasis"></i> Produits valides vs
+            Expirés
+          </h5>
           <div class="col-lg-6">
-            <h5 class="mb-3 fs-3 text-info">
-              <i class="bi bi-pie-chart-fill fs-1 text-primary-emphasis"></i> Produits valides vs
-              Expirés
-            </h5>
             <div class="card p-3 chart">
               <canvas
                 id="expiryChart"

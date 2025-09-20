@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>Login Para a Petit Prix</title>
+    <link
+      rel="stylesheet"
+      href="css/login.css"
+    />
+  
+  </head>
+  <body>
+    <div id="message-container"></div>
+    <section class="container">
+      <div class="login-container">
+        <div class="circle circle-one">
+          <img
+            src="https://i.postimg.cc/hPxTpc1K/Photoroom-20250915-231503.png"
+            alt=""
+          />
+        </div>
+        <div class="form-container">
+          <img
+            src="https://raw.githubusercontent.com/hicodersofficial/glassmorphism-login-form/master/assets/illustration.png"
+            alt="illustration"
+            class="illustration"
+          />
+          <h1 class="opacity">LOGIN</h1>
+          <form
+            action="/login"
+            method="post"
+          >
+            <input
+              type="password"
+              placeholder="PASSWORD"
+              name="password"
+            />
+            <button class="opacity">SUBMIT</button>
+          </form>
+          <div class="register-forget opacity">
+            <a href="#">REGISTER</a>
+            <a href="#">FORGOT PASSWORD</a>
+          </div>
+        </div>
+        <div class="circle circle-two">
+          <img
+            class="logo"
+            src="https://i.postimg.cc/hPxTpc1K/Photoroom-20250915-231503.png"
+            alt=""
+          />
+        </div>
+      </div>
+      <div class="theme-btn-container"></div>
+    </section>
+    <script>
+      // قراءة الرسالة من query parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const message = urlParams.get('message');
+
+      if (message) {
+        const container = document.getElementById('message-container');
+        const div = document.createElement('div');
+        div.className = 'message ' + (message.includes('✅') ? 'success' : 'error');
+        div.textContent = message;
+        container.appendChild(div);
+
+        // حذف الرسالة من URL بعد العرض
+        history.replaceState(null, '', window.location.pathname);
+
+        // تحويل تلقائي بعد 2 ثانية لو كانت رسالة نجاح
+        if (message.includes('✅')) {
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 2000);
+        }
+      }
+    </script>
+    <script src="js/login.js"></script>
+  </body>
+</html>

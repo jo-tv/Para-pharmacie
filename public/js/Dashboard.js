@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         { title: 'Stock Épuisé', value: outOfStock, icon: 'bi-x-circle', color: 'bg-danger' },
         {
-          title: 'Expirés',
+          title: 'Produits Expirés',
           value: expiredCount,
           icon: 'bi-exclamation-triangle',
           color: 'bg-danger',
@@ -183,30 +183,30 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         {
           title: 'Valeur Stock',
-          value: totalValue.toFixed(2) + ' DH',
+          value: totalValue.toFixed(2) + ' DH/TTC',
           icon: 'bi-cash-coin',
           color: 'bg-success',
         },
         // ✅ بطاقة جديدة لمجموع المبيعات اليومية
         {
           title: 'Ventes du jour',
-          value: dailyTotal.toFixed(2) + ' DH',
+          value: dailyTotal.toFixed(2) + ' DH/TTC',
           icon: 'bi-cash-stack',
           color: 'bg-info',
         },
       ]
         .map(
           (stat) => `
-        <div class="col-12 col-sm-6 col-lg-3">
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
           <div class="card stat-card p-3 h-100">
-            <div class="d-flex align-items-center">
+            <div class="cardsVue">
               <div class="me-3 p-2 rounded ${stat.color} text-white"
                 style="box-shadow: rgba(0,0,0,0.16) 0px 1px 4px, rgb(51,51,51) 0px 0px 0px 3px;">
                 <i class="bi ${stat.icon}"></i>
               </div>
-              <div style="width: 50%">
-                <h6 class="text-muted mb-1 text-primary-emphasis">${stat.title}</h6>
-                <h6 class="mb-0">${stat.value}</h6>
+              <div class="value">
+                <h6 class="text-muted mb-1 text-text-secondary-emphasis">${stat.title}</h6>
+                <h6 class="mb-0 text-success">${stat.value}</h6>
               </div>
             </div>
           </div>

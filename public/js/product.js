@@ -167,12 +167,28 @@ function renderProducts(list) {
     lengthMenu: [10, 20, 50, 100],
     dom: 'Bfrtip',
     buttons: [
-      { extend: 'excelHtml5', text: '📥 Excel', className: 'btn btn-success' },
-      { extend: 'csvHtml5', text: '📥 CSV', className: 'btn btn-info' },
-      { extend: 'pdfHtml5', text: '📥 PDF', className: 'btn btn-danger' },
-      { extend: 'print', text: '🖨️ Print', className: 'btn btn-secondary' },
       {
-        text: '📃 Clear & Reload', // نص الزر
+        extend: 'excelHtml5',
+        text: '<i class="bi bi-file-earmark-spreadsheet"></i> Excel',
+        className: 'btn btn-success',
+      },
+      {
+        extend: 'csvHtml5',
+        text: '<i class="bi bi-filetype-csv"></i> CSV',
+        className: 'btn btn-info',
+      },
+      {
+        extend: 'pdfHtml5',
+        text: '<i class="bi bi-file-earmark-pdf-fill"></i> PDF',
+        className: 'btn btn-danger',
+      },
+      {
+        extend: 'print',
+        text: '<i class="bi bi-printer-fill"></i>️ Print',
+        className: 'btn btn-secondary',
+      },
+      {
+        text: '<i class="bi bi-trash3-fill"></i> Clear & Reload', // نص الزر
         className: 'btn btn-warning', // لون الزر
         action: function (e, dt, node, config) {
           // مسح بيانات محددة من localStorage

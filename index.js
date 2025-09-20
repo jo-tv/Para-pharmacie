@@ -5,17 +5,42 @@ import path from 'path';
 import multer from 'multer';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
+import bcrypt from 'bcrypt';
+import bodyParser from 'body-parser';
+import session from 'express-session';
 import Product from './models/Product.js';
 import Sale from './models/Sale.js';
+import User from './models/User.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config();
+// Middlewares
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
 app.use(express.static(path.join(__dirname, 'public')));
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+// ✅ إعداد session
+app.use(
+  session({
+    secret: 'mySecretKey', // غيّرها لقيمة قوية
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 1000 * 60 * 60 * 12 }, // 12 ساعة
+  })
+);
+
+// Middleware للتحقق من تسجيل الدخول
+function isAuth(req, res, next) {
+  if (req.session.userId) {
+    return next(); // مسموح
+  }
+  res.redirect('/login'); // غير مسموح
+}
 
 // اتصال بقاعدة البيانات
 mongoose
@@ -34,21 +59,93 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // 📄 عرض صفحة index.html
-app.get('/', (req, res) => {
+app.get('/regi', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'regi.html'));
+});
+// Route POST لاستقبال البيانات
+app.post('/regi', async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    // 🗑️ مسح كل المستخدمين القدامى
+    await User.deleteMany({});
+
+    // 🔐 تشفير الباسوورد الجديد
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 💾 حفظ في DB
+    const newUser = new User({ password: hashedPassword });
+    await newUser.save();
+
+    // ✅ رسالة HTML أنيقة مع تحويل بعد 2 ثانية
+    // بعد نجاح التسجيل
+    req.session.message = '✅ New user registered successfully!';
+    
+    const message = req.session.message || null;
+  req.session.message = null;
+    
+    if (message) {
+      // تحويل الرسالة إلى query parameter
+      return res.redirect(`/regi?message=${encodeURIComponent(message)}`);
+    }
+    res.redirect('/login');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('❌ Server error');
+  }
+});
+
+app.get('/login', (req, res) => {
+  const message = req.session.message || null;
+  req.session.message = null;
+
+  if (message) {
+    // تحويل الرسالة إلى query parameter
+    return res.redirect(`/login?message=${encodeURIComponent(message)}`);
+  }
+  res.sendFile(path.join(__dirname, 'views', 'login.html'));
+});
+
+app.post('/login', async (req, res) => {
+  const { password } = req.body;
+  const user = await User.findOne();
+
+  if (!user) {
+    req.session.message = '❌ No user found, please register first.';
+    return res.redirect('/login'); // ⬅️ إعادة توجيه لعرض الرسالة
+  }
+
+  const match = await bcrypt.compare(password, user.password);
+  if (!match) {
+    req.session.message = '❌ Invalid password.';
+    return res.redirect('/login'); // ⬅️ إعادة توجيه لعرض الرسالة
+  }
+
+  // ✅ حفظ session
+  req.session.userId = user._id;
+
+  // ✅ إعادة التوجيه إلى الصفحة الرئيسية
+  res.redirect('/');
+});
+
+app.get('/', isAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'Dashboard.html'));
 });
-app.get('/product', (req, res) => {
+
+app.get('/product', isAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'product.html'));
 });
-app.get('/ajouter', (req, res) => {
+
+app.get('/ajouter', isAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'admin.html'));
 });
-app.get('/caisse', (req, res) => {
+
+app.get('/caisse', isAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'caisse.html'));
 });
 
 // جلب كل المنتجات
-app.get('/api/products', async (req, res) => {
+app.get('/api/products', isAuth, async (req, res) => {
   const { page = 1, limit = 100 } = req.query; // افتراضي: 100 منتج
   try {
     const products = await Product.find()
@@ -64,7 +161,7 @@ app.get('/api/products', async (req, res) => {
 });
 
 // جلب المنتجات الجديدة فقط منذ آخر مزامنة
-app.get('/api/products/updates', async (req, res) => {
+app.get('/api/products/updates', isAuth, async (req, res) => {
   try {
     const { lastSync } = req.query;
     if (!lastSync) return res.status(400).json({ error: 'lastSync required' });
@@ -81,7 +178,7 @@ app.get('/api/products/updates', async (req, res) => {
 });
 
 // البحث في قاعدة البيانات
-app.get('/api/products/search', async (req, res) => {
+app.get('/api/products/search', isAuth, async (req, res) => {
   const q = req.query.q;
   if (!q) return res.json({}); // إذا لم يرسل المستخدم شيء
 
@@ -211,15 +308,15 @@ app.put('/api/products/:id', async (req, res) => {
 
 // هنا بداية دوال sales
 
-app.get('/ticket', (req, res) => {
+app.get('/ticket', isAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'ticket.html'));
 });
-app.get('/facture', (req, res) => {
+app.get('/facture', isAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'facture.html'));
 });
 
 // ✅ API لحساب مجموع المبيعات اليومية
-app.get('/api/ventes/daily-total', async (req, res) => {
+app.get('/api/ventes/daily-total', isAuth, async (req, res) => {
   try {
     // بداية اليوم (00:00)
     const today = new Date();
@@ -253,19 +350,8 @@ app.get('/api/ventes/daily-total', async (req, res) => {
   }
 });
 
-// جلب فاتورة حسب ID
-// app.get('/api/ventes', async (req, res) => {
-//   try {
-//     const ventes = await Sale.find().sort({ createdAt: -1 }).lean();
-//     res.json({ ok: true, ventes });
-//   } catch (err) {
-//     console.error('❌ Erreur lors de la récupération des ventes:', err);
-//     res.status(500).json({ ok: false, message: 'Erreur serveur ❌' });
-//   }
-// });
-
 // GET /api/ventes endpoint
-app.get('/api/ventes', async (req, res) => {
+app.get('/api/ventes', isAuth, async (req, res) => {
   try {
     let query = {};
     const searchTerm = req.query.search;
@@ -276,48 +362,48 @@ app.get('/api/ventes', async (req, res) => {
 
     // فلترة نطاق التاريخ
     if (startDate || endDate) {
-  const dateRangeCondition = {};
+      const dateRangeCondition = {};
 
-  if (startDate && !endDate) {
-    // 🟢 يوم واحد فقط
-    const startOfDay = new Date(startDate);
-    startOfDay.setHours(0, 0, 0, 0);
+      if (startDate && !endDate) {
+        // 🟢 يوم واحد فقط
+        const startOfDay = new Date(startDate);
+        startOfDay.setHours(0, 0, 0, 0);
 
-    const endOfDay = new Date(startDate);
-    endOfDay.setHours(23, 59, 59, 999);
+        const endOfDay = new Date(startDate);
+        endOfDay.setHours(23, 59, 59, 999);
 
-    dateRangeCondition.$gte = startOfDay;
-    dateRangeCondition.$lte = endOfDay;
-  } else {
-    // 🟢 نطاق بين تاريخين
-    if (startDate) {
-      const startOfDay = new Date(startDate);
-      startOfDay.setHours(0, 0, 0, 0);
-      dateRangeCondition.$gte = startOfDay;
+        dateRangeCondition.$gte = startOfDay;
+        dateRangeCondition.$lte = endOfDay;
+      } else {
+        // 🟢 نطاق بين تاريخين
+        if (startDate) {
+          const startOfDay = new Date(startDate);
+          startOfDay.setHours(0, 0, 0, 0);
+          dateRangeCondition.$gte = startOfDay;
+        }
+
+        if (endDate) {
+          const endOfDay = new Date(endDate);
+          endOfDay.setHours(23, 59, 59, 999);
+          dateRangeCondition.$lte = endOfDay;
+        }
+      }
+
+      mainConditions.push({ createdAt: dateRangeCondition });
+    } else {
+      // 🟢 إذا لم يُدخل المستخدم أي تاريخ → اليوم الحالي من 00:00 إلى 23:59:59
+      const now = new Date();
+
+      const startOfToday = new Date(now);
+      startOfToday.setHours(0, 0, 0, 0);
+
+      const endOfToday = new Date(now);
+      endOfToday.setHours(23, 59, 59, 999);
+
+      mainConditions.push({
+        createdAt: { $gte: startOfToday, $lte: endOfToday },
+      });
     }
-
-    if (endDate) {
-      const endOfDay = new Date(endDate);
-      endOfDay.setHours(23, 59, 59, 999);
-      dateRangeCondition.$lte = endOfDay;
-    }
-  }
-
-  mainConditions.push({ createdAt: dateRangeCondition });
-} else {
-  // 🟢 إذا لم يُدخل المستخدم أي تاريخ → اليوم الحالي من 00:00 إلى 23:59:59
-  const now = new Date();
-
-  const startOfToday = new Date(now);
-  startOfToday.setHours(0, 0, 0, 0);
-
-  const endOfToday = new Date(now);
-  endOfToday.setHours(23, 59, 59, 999);
-
-  mainConditions.push({
-    createdAt: { $gte: startOfToday, $lte: endOfToday }
-  });
-}
 
     // فلترة البحث النصي/الرقمي
     if (searchTerm) {
@@ -445,6 +531,13 @@ app.delete('/api/vente/:id', async (req, res) => {
     console.error(err);
     res.status(500).json({ ok: false, message: 'Erreur serveur' });
   }
+});
+
+// تسجيل الخروج
+app.get('/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.redirect('/login');
+  });
 });
 
 // apps listen

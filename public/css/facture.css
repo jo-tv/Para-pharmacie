@@ -197,7 +197,12 @@ table {
     margin: 0 auto;
     page-break-after: always; /* كل فاتورة في صفحة مستقلة */
   }
-
+  .document-type {
+    color: #444;
+  }
+  .conditions {
+    color: #666;
+  }
   .footer {
     margin-top: auto; /* يخلي الفوتر ينزل لأسفل الصفحة */
     text-align: center;

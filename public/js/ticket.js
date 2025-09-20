@@ -1,5 +1,3 @@
-
-
 // Sidebar
 const sidebar = document.getElementById('sidebar');
 const toggleBtn = document.getElementById('sidebarToggle');
@@ -69,10 +67,10 @@ async function loadTickets(searchTerm = '', startDate = '', endDate = '') {
       ticket.className = 'ticket mb-4 p-3 border'; // Full HTML for each ticket
       ticket.innerHTML = `
         <div class="mb-3 text-center">
-          <button class="btn btn-dark btn-print">🖨️ Print</button>
-          <button class="btn btn-danger btn-pdf">📄 PDF</button>
-          <button class="btn btn-warning btn-delete">❌ Delete</button>
-          <button class="btn btn-info btn-facture">🧾 Facture</button>
+          <button class="btn btn-dark btn-print"><i class="bi bi-printer-fill"></i>️ Print</button>
+          <button class="btn btn-danger btn-pdf"><i class="bi bi-file-earmark-pdf"></i> PDF</button>
+          <button class="btn btn-warning btn-delete"><i class="bi bi-trash"></i> Delete</button>
+          <button class="btn btn-info btn-facture"><i class="bi bi-file-earmark-break-fill"></i> Facture</button>
         </div>
         <div class="head-ticket">
           <img src="https://i.postimg.cc/k41NXPLX/Photoroom-20250915-231503.png" alt="logo"/>
@@ -204,15 +202,46 @@ async function loadTickets(searchTerm = '', startDate = '', endDate = '') {
       };
 
       function printTicket(ticket) {
+        // افترض أن createPrintableTicket تُرجع html وcss
         const { html, style } = createPrintableTicket(ticket);
+
+        // افتح نافذة جديدة
         const w = window.open('', '_blank');
-        w.document.write('<html><head><title>Ticket</title>' + style + '</head><body>');
-        w.document.write(html);
+
+        if (!w) {
+          alert('النافذة الجديدة تم حظرها من قبل المتصفح. حاول السماح بالنوافذ المنبثقة.');
+          return;
+        }
+
+        // ضع الـ HTML و CSS داخل نافذة جديدة
+        w.document.open();
+        w.document.write(`
+    <html>
+      <head>
+        <title>Ticket</title>
+        ${style} <!-- CSS داخل <style> -->
+        <style>
+          /* تأكد من أن الفاتورة بالحجم المناسب */
+          body { margin: 0; padding: 10px; font-family: Arial, sans-serif; }
+          .ticket { width: 300px; max-width: 100%; }
+        </style>
+      </head>
+      <body>
+        ${html}
+      </body>
+    </html>
+  `);
         w.document.close();
+
+        // ننتظر تحميل الصور والـ CSS قبل الطباعة
         w.onload = () => {
           w.focus();
-          w.print();
-          w.close();
+
+          // تأخير بسيط 0.5 ثانية لضمان التحميل الكامل
+          setTimeout(() => {
+            w.print();
+            w.close();
+          }, 500);
         };
       }
 
