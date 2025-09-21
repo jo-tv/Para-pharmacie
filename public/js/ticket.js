@@ -322,3 +322,9 @@ document.addEventListener('DOMContentLoaded', () => {
     endDateInput.addEventListener('change', performSearch);
   }
 });
+
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/sw.js")
+      .then(() => console.log("Service Worker مسجل بنجاح"))
+      .catch((err) => console.error("فشل تسجيل SW:", err));
+  };
