@@ -55,9 +55,7 @@ app.use(
     store,
     cookie: {
       maxAge: 6 * 60 * 60 * 1000, // ⏰ 6 ساعات بالمللي ثانية
-      httpOnly: false, // يمنع الوصول من JavaScript
-      secure: process.env.NODE_ENV === 'production', // ضروري https على Vercel
-      sameSite: 'lax', // أو "none" لو محتاج cross-domain
+    
     },
   })
 );
