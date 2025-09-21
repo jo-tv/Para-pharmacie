@@ -34,31 +34,30 @@ app.use(express.static(path.join(__dirname)));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs'); // أو pug أو
 
-
 // 🗑️ إعداد المخزن مع التنظيف التلقائي
 const store = new MongoDBStore({
   uri: process.env.MONGO_URI,
-  collection: "sessions",
+  collection: 'sessions',
   ttl: 6 * 60 * 60, // ⏰ مدة صلاحية الجلسة (6 ساعات) بالثواني
 });
 
 // ✅ لو وقع خطأ في MongoStore
-store.on("error", function (err) {
-  console.error("❌ MongoDBStore error:", err);
+store.on('error', function (err) {
+  console.error('❌ MongoDBStore error:', err);
 });
 
 // ✅ Middleware للجلسة
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "mySuperSecretKeyhellobrder166628",
+    secret: process.env.SESSION_SECRET || 'mySuperSecretKeyhellobrder166628',
     resave: false, // ما يعيدش حفظ session إلا لو تغيرات
     saveUninitialized: false, // ما يخزنش sessions فارغة
     store,
     cookie: {
       maxAge: 6 * 60 * 60 * 1000, // ⏰ 6 ساعات بالمللي ثانية
-      httpOnly: true, // يمنع الوصول من JavaScript
-      secure: process.env.NODE_ENV === "production", // ضروري https على Vercel
-      sameSite: "lax", // أو "none" لو محتاج cross-domain
+      httpOnly: false, // يمنع الوصول من JavaScript
+      secure: process.env.NODE_ENV === 'production', // ضروري https على Vercel
+      sameSite: 'lax', // أو "none" لو محتاج cross-domain
     },
   })
 );
