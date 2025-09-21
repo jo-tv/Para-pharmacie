@@ -21,10 +21,6 @@
     />
   </head>
   <body>
-    <div
-      id="message-container"
-      
-    ></div>
     <section class="container">
       <div class="login-container">
         <div class="circle circle-one">
@@ -43,13 +39,12 @@
           <form
             action="/login"
             method="post"
-            id="loginForm"
           >
             <input
               type="password"
               placeholder="PASSWORD"
               name="password"
-              id="password"
+              
             />
             <button class="opacity">SUBMIT</button>
           </form>
@@ -75,30 +70,6 @@
       تثبيت التطبيق
     </button>
     <script src="js/login.js"></script>
-
-    <script>
-      const params = new URLSearchParams(window.location.search);
-      const container = document.getElementById('message-container');
-
-      if (params.has('error')) {
-        const div = document.createElement('div');
-        div.className = 'message error';
-        div.textContent = params.get('error');
-        container.appendChild(div);
-      }
-
-      if (params.has('success')) {
-        const div = document.createElement('div');
-        div.className = 'message success';
-        div.textContent = params.get('success');
-        container.appendChild(div);
-      }
-
-      // إزالة الرسائل من URL بعد العرض
-      if (params.has('error') || params.has('success')) {
-        history.replaceState(null, '', window.location.pathname);
-      }
-    </script>
     <script
       src="js/app.js"
       type="text/javascript"

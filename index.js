@@ -64,20 +64,6 @@ app.use(
   })
 );
 
-// middleware لإرسال الرسائل للـ template أو HTML
-app.use((req, res, next) => {
-  res.locals.messages = {
-    error: req.flash('error'),
-    success: req.flash('success'),
-  };
-  next();
-});
-app.get('/login-messages', (req, res) => {
-  const errors = req.flash('error');
-  const success = req.flash('success');
-  res.json({ errors, success });
-});
-
 // Middleware للتحقق من تسجيل الدخول
 function isAuth(req, res, next) {
   if (req.session.userId) {
@@ -146,20 +132,32 @@ app.get('/login', (req, res) => {
 // 🔹 تسجيل الدخول
 app.post('/login', async (req, res) => {
   const { password } = req.body;
-  const user = await User.findOne({});
 
-  if (!user) {
-    return res.redirect('/login?error=' + encodeURIComponent('❌ Aucun utilisateur enregistré.'));
+  try {
+    // جلب المستخدم (عندك مستخدم واحد فقط)
+    const user = await User.findOne({});
+    if (!user) {
+      // إذا ما كانش مستخدم، نعيد توجيه مباشرة للـ login
+      return res.redirect('/login');
+    }
+
+    // التحقق من كلمة السر
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.redirect('/login'); // كلمة سر خاطئة → إعادة توجيه للـ login
+    }
+
+    // تسجيل الدخول بنجاح → إنشاء session
+    req.session.userId = user._id;
+
+    // إعادة التوجيه مباشرة للصفحة الرئيسية
+    res.redirect('/');
+  } catch (err) {
+    console.error(err);
+    res.redirect('/login'); // أي خطأ → إعادة توجيه للـ login
   }
-
-  const match = await bcrypt.compare(password, user.password);
-  if (!match) {
-    return res.redirect('/login?error=' + encodeURIComponent('❌ Mot de passe incorrect.'));
-  }
-
-  req.session.userId = user._id;
-  res.redirect('/?success=' + encodeURIComponent('✅ Connexion réussie !'));
 });
+
 app.get('/', isAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'Dashboard.html'));
 });
@@ -573,6 +571,6 @@ app.get('/logout', (req, res) => {
 });
 
 // apps listen
-app.listen(5000, () => {
+app.listen(5000, '0.0.0.0', () => {
   console.log('🚀 Backend running on port 5000');
 });
