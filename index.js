@@ -15,7 +15,9 @@ import User from './models/User.js';
 import connectMongoDBSession from 'connect-mongodb-session';
 const MongoDBStore = connectMongoDBSession(session);
 import rateLimit from 'express-rate-limit';
+import flash from 'connect-flash';
 
+// بعد الـ session middleware
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config();
@@ -27,6 +29,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
+app.use(flash());
 // عرض ملفات ثابتة من الجذر
 app.use(express.static(path.join(__dirname)));
 // أو إذا تبي مجلد مخصص مثلاً public/
@@ -60,6 +63,20 @@ app.use(
     },
   })
 );
+
+// middleware لإرسال الرسائل للـ template أو HTML
+app.use((req, res, next) => {
+  res.locals.messages = {
+    error: req.flash('error'),
+    success: req.flash('success'),
+  };
+  next();
+});
+app.get('/login-messages', (req, res) => {
+  const errors = req.flash('error');
+  const success = req.flash('success');
+  res.json({ errors, success });
+});
 
 // Middleware للتحقق من تسجيل الدخول
 function isAuth(req, res, next) {
@@ -128,30 +145,20 @@ app.get('/login', (req, res) => {
 
 // 🔹 تسجيل الدخول
 app.post('/login', async (req, res) => {
-  try {
-    const { password } = req.body;
+  const { password } = req.body;
+  const user = await User.findOne({});
 
-    // 🟢 جلب المستخدم من قاعدة البيانات (عندك مستخدم واحد فقط مسجل)
-    const user = await User.findOne({});
-    if (!user) {
-      return res.status(401).send('❌ لا يوجد مستخدم مسجل.');
-    }
-
-    // 🔐 التحقق من كلمة السر
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) {
-      return res.status(401).send('❌ كلمة السر غير صحيحة.');
-    }
-
-    // ✅ نجاح → إنشاء session
-    req.session.userId = user._id;
-
-    // 🔀 إعادة التوجيه للصفحة الرئيسية
-    res.redirect('/');
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('❌ خطأ في الخادم.');
+  if (!user) {
+    return res.redirect('/login?error=' + encodeURIComponent('❌ Aucun utilisateur enregistré.'));
   }
+
+  const match = await bcrypt.compare(password, user.password);
+  if (!match) {
+    return res.redirect('/login?error=' + encodeURIComponent('❌ Mot de passe incorrect.'));
+  }
+
+  req.session.userId = user._id;
+  res.redirect('/?success=' + encodeURIComponent('✅ Connexion réussie !'));
 });
 app.get('/', isAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'Dashboard.html'));
