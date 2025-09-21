@@ -416,3 +416,5 @@ loadProducts();
       .then(() => console.log("Service Worker مسجل بنجاح"))
       .catch((err) => console.error("فشل تسجيل SW:", err));
   };
+  
+  
