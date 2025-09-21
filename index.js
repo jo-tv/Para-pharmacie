@@ -56,11 +56,7 @@ app.use(
     resave: false, // ما يعيدش حفظ session إلا لو تغيرات
     saveUninitialized: false, // ما يخزنش sessions فارغة
     store,
-    cookie: {
-      maxAge: 6 * 60 * 60 * 1000, // ⏰ 6 ساعات بالمللي ثانية
-      httpOnly: true, // يمنع الوصول من JavaScript
-      sameSite: 'lax', // أو "none" لو محتاج cross-domain
-    },
+    
   })
 );
 
