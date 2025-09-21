@@ -25,12 +25,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 // ✅ إعداد session
+
+// 🟢 أولًا: ضبط الجلسة
+
+import MongoStore from 'connect-mongo';
+
 app.use(
   session({
-    secret: 'mySecretKey', // غيّرها لقيمة قوية
+    secret: 'my_secret_key',
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 1000 * 60 * 60 * 12 }, // 12 ساعة
+    cookie: { maxAge: 1000 * 60 * 60 }, // ساعة
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URI, // 👈 هنا المفتاح الصحيح
+    }),
   })
 );
 
@@ -80,10 +88,10 @@ app.post('/regi', async (req, res) => {
     // ✅ رسالة HTML أنيقة مع تحويل بعد 2 ثانية
     // بعد نجاح التسجيل
     req.session.message = '✅ New user registered successfully!';
-    
+
     const message = req.session.message || null;
-  req.session.message = null;
-    
+    req.session.message = null;
+
     if (message) {
       // تحويل الرسالة إلى query parameter
       return res.redirect(`/regi?message=${encodeURIComponent(message)}`);
