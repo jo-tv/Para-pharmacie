@@ -571,6 +571,8 @@ app.get('/logout', (req, res) => {
 });
 
 // apps listen
-app.listen(3000, () => {
-  console.log('🚀 Backend running on port 5000');
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`🚀 Backend running on port ${PORT}`);
 });
