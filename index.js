@@ -571,6 +571,6 @@ app.get('/logout', (req, res) => {
 });
 
 // apps listen
-app.listen(5000, '0.0.0.0', () => {
+app.listen(3000, () => {
   console.log('🚀 Backend running on port 5000');
 });
