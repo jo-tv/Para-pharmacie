@@ -55,7 +55,8 @@ app.use(
     store,
     cookie: {
       maxAge: 6 * 60 * 60 * 1000, // ⏰ 6 ساعات بالمللي ثانية
-    
+      httpOnly: true, // يمنع الوصول من JavaScript
+      sameSite: 'lax', // أو "none" لو محتاج cross-domain
     },
   })
 );
