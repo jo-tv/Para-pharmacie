@@ -220,11 +220,6 @@ h1 {
     -o-transform: scale(1);
   }
 }
-@media (min-width: 900px) {
-  .login-container {
-    scale: 2;
-  }
-}
 .circle-two img,
 .circle-one img {
   width: 120px;
