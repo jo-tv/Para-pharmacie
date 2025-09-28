@@ -8,6 +8,8 @@ const productSchema = new mongoose.Schema(
     quantity: { type: Number, default: 0 },
     expiry: { type: Date },
     image: { type: String },
+    visibility: { type: String },
+    category: { type: String },
   },
   { timestamps: true } // يضيف createdAt و updatedAt
 );

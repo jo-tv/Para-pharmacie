@@ -28,7 +28,6 @@ app.set('views', path.join(__dirname, 'views'));
 
 // 🟢 أولًا: ضبط الجلسة
 
-
 import MongoStore from 'connect-mongo';
 
 app.use(
@@ -154,7 +153,7 @@ app.get('/caisse', isAuth, (req, res) => {
 });
 
 // جلب كل المنتجات
-app.get('/api/products', isAuth, async (req, res) => {
+app.get('/api/products', async (req, res) => {
   const { page = 1, limit = 100 } = req.query; // افتراضي: 100 منتج
   try {
     const products = await Product.find()
@@ -241,7 +240,8 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
 // 🟢 API: إضافة منتج جديد
 app.post('/api/products', async (req, res) => {
   try {
-    const { name, barcode, price, quantity, expiry, image } = req.body;
+    const { name, barcode, price, quantity, expiry,visibility,
+      category, image } = req.body;
 
     // ننشئ المنتج
     const newProduct = new Product({
@@ -250,6 +250,8 @@ app.post('/api/products', async (req, res) => {
       price,
       quantity,
       expiry,
+      visibility,
+      category,
       image, // هذا سيكون Base64 string
     });
 
@@ -293,12 +295,13 @@ app.delete('/api/products/:id', async (req, res) => {
 // PUT /api/products/:id
 app.put('/api/products/:id', async (req, res) => {
   const { id } = req.params;
-  const { name, price, quantity, barcode, expiry, image } = req.body;
+  const { name, price, quantity, barcode, expiry, visibility, category, image } = req.body;
 
   try {
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
-      { name, price, quantity, barcode, expiry, image },
+      { name, price, quantity, barcode, expiry,visibility,
+      category, image },
       { new: true, runValidators: true } // لإرجاع المنتج بعد التحديث
     );
 

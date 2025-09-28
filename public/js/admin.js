@@ -243,7 +243,9 @@ function renderProducts(list = products) {
         document.getElementById('editExpiry').value = p.expiry
           ? new Date(p.expiry).toISOString().slice(0, 10)
           : '';
-          document.getElementById('editImgeUrl').value = p.image;
+        document.getElementById('editImgeUrl').value = p.image;
+        document.getElementById('productVisibility').value = p.visibility;
+        document.getElementById('productCategory').value = p.category;
         if (editModal) editModal.show();
       });
     }
@@ -303,6 +305,8 @@ if (form) {
       quantity: parseInt(document.getElementById('quantity').value) || 0,
       expiry: document.getElementById('expiry').value,
       image: imageUrl || imageUrl2,
+      visibility: document.getElementById('productVisibility').value || "", // "oui" أو "non"
+      category: document.getElementById('productCategory').value || "",
     };
 
     try {
@@ -334,15 +338,22 @@ if (form) {
 if (editForm) {
   editForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const id = document.getElementById('editId').value;
+
+    const id = document.getElementById('editId')?.value || null;
+
     const updated = {
-      name: document.getElementById('editName').value,
-      barcode: document.getElementById('editBarcode').value,
-      price: parseFloat(document.getElementById('editPrice').value) || 0,
-      quantity: parseInt(document.getElementById('editQuantity').value) || 0,
-      expiry: document.getElementById('editExpiry').value,
-      image: document.getElementById('editImgeUrl').value,
+      name: document.getElementById('editName')?.value || '',
+      barcode: document.getElementById('editBarcode')?.value || '',
+      price: parseFloat(document.getElementById('editPrice')?.value) || 0,
+      quantity: parseInt(document.getElementById('editQuantity')?.value) || 0,
+      expiry: document.getElementById('editExpiry')?.value || '',
+      visibility: document.getElementById('editVisibility')?.value || 'oui', // valeur par défaut
+      category: document.getElementById('editCategory')?.value || '',
+      image: document.getElementById('editImgeUrl')?.value || '',
     };
+
+    console.log(updated);
+
     try {
       const res = await fetch(`/api/products/${id}`, {
         method: 'PUT',
@@ -350,6 +361,7 @@ if (editForm) {
         body: JSON.stringify(updated),
       });
       const data = await res.json();
+
       if (data.product) {
         const index = products.findIndex((p) => p._id === id);
         if (index > -1) products[index] = data.product;
@@ -409,12 +421,9 @@ function updateLocalStorage() {
 /* ====== Initial load ====== */
 loadProducts();
 
-
-
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/sw.js")
-      .then(() => console.log("Service Worker مسجل بنجاح"))
-      .catch((err) => console.error("فشل تسجيل SW:", err));
-  };
-  
-  
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker
+    .register('/sw.js')
+    .then(() => console.log('Service Worker مسجل بنجاح'))
+    .catch((err) => console.error('فشل تسجيل SW:', err));
+}
