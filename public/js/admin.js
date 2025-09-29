@@ -244,8 +244,8 @@ function renderProducts(list = products) {
           ? new Date(p.expiry).toISOString().slice(0, 10)
           : '';
         document.getElementById('editImgeUrl').value = p.image;
-        document.getElementById('productVisibility').value = p.visibility;
-        document.getElementById('productCategory').value = p.category;
+        document.getElementById('editVisibility').value = p.visibility;
+        document.getElementById('editCategory').value = p.category;
         if (editModal) editModal.show();
       });
     }
@@ -305,8 +305,8 @@ if (form) {
       quantity: parseInt(document.getElementById('quantity').value) || 0,
       expiry: document.getElementById('expiry').value,
       image: imageUrl || imageUrl2,
-      visibility: document.getElementById('productVisibility').value || "", // "oui" أو "non"
-      category: document.getElementById('productCategory').value || "",
+      visibility: document.getElementById('productVisibility').value || '', // "oui" أو "non"
+      category: document.getElementById('productCategory').value || '',
     };
 
     try {
