@@ -200,33 +200,40 @@ function renderProducts(list = products) {
     col.className = 'col-12 col-sm-6 col-md-4 col-lg-3';
 
     col.innerHTML = `
-      <div class="card product-card">
-        <img src="${
-          p.image ||
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOQOzK3if8ubYIFpjwxQ8kf6D7XYHZfbhD-iMvupcsBQ&amp;s=10'
-        }" class="card-img-top" alt="${escapeHtml(p.name || 'Produit')}">
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title text-truncate">${escapeHtml(p.name || '')}</h5>
-          <p class="price">
-            ${p.price !== undefined ? p.price.toFixed(2) + ' DH' : '-'}
-          </p>
-          <p class="quantity">Quantité: <span class="qty">${p.quantity ?? '-'}</span></p>
-          <p class="expiry">Expiration: ${expiryDate}</p>
+  <div class="card product-card">
+    <div class="product-image">
+      <img src="${
+        p.image ||
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOQOzK3if8ubYIFpjwxQ8kf6D7XYHZfbhD-iMvupcsBQ&s=10'
+      }" 
+      alt="${escapeHtml(p.name || 'Produit')}" class="card-img-top">
+    </div>
+    
+    <div class="card-body d-flex flex-column">
+      <h5 class="card-title">${escapeHtml(p.name || 'Produit')}</h5>
+      <p class="price">${p.price !== undefined ? p.price.toFixed(2) + ' DH' : '-'}</p>
 
-          <div class="mt-auto text-center barcode">
-            <img src="https://barcode.tec-it.com/barcode.ashx?data=${encodeURIComponent(
-              p.barcode ?? ''
-            )}&code=Code128&translate-esc=true&dpi=96&modulewidth=2&unit=Fit&imagetype=png"
-                 alt="Code-barre ${escapeHtml(String(p.barcode ?? ''))}" class="img-fluid">
-          </div>
-
-          <div class="d-flex gap-2 mt-3">
-            <button class="btn btn-primary btn-edit flex-fill">Modifier</button>
-            <button class="btn btn-danger btn-delete flex-fill">Supprimer</button>
-          </div>
-        </div>
+      <div class="product-details text-start mt-2">
+        <p><strong>Quantité:</strong> <span class="qty">${p.quantity ?? '-'}</span></p>
+        <p><strong>Catégorie:</strong> ${escapeHtml(p.category || '-')}</p>
+        <p><strong>Visibilité:</strong> ${escapeHtml(p.visibility || '-')}</p>
+        <p><strong>Expiration:</strong> ${expiryDate}</p>
       </div>
-    `;
+
+      <div class="mt-auto text-center barcode">
+        <img src="https://barcode.tec-it.com/barcode.ashx?data=${encodeURIComponent(
+          p.barcode ?? ''
+        )}&code=Code128&translate-esc=true&dpi=96&modulewidth=2&unit=Fit&imagetype=png"
+             alt="Code-barre ${escapeHtml(String(p.barcode ?? ''))}" class="img-fluid">
+      </div>
+
+      <div class="d-flex gap-2 mt-3">
+        <button class="btn btn-primary btn-edit flex-fill">Modifier</button>
+        <button class="btn btn-danger btn-delete flex-fill">Supprimer</button>
+      </div>
+    </div>
+  </div>
+`;
 
     productList.appendChild(col);
 

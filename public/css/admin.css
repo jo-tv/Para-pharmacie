@@ -95,97 +95,114 @@ body {
   transition:
     transform 0.2s ease-in-out,
     box-shadow 0.2s ease-in-out;
-  font-weight: 700;
-  text-transform: none;
-  padding: 0;
-  margin-bottom: 20px;
-  border-radius: 12px;
-  height: 100%;
+  border-radius: 14px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;
+  height: 100%;
+  background: #fff;
+  box-shadow: rgba(38, 57, 77, 0.3) 0px 10px 20px -5px;
 }
 
-/* صورة داخل بطاقة Bootstrap (card-img-top) */
+/* صورة المنتج */
+.product-card .product-image {
+  background: #f8f9fa;
+  padding: 10px;
+}
 .product-card .card-img-top {
   width: 100%;
-  height: 350px; /* ثابت بارتفاع مناسب */
-  display: block;
-  box-shadow:
-    rgba(0, 0, 0, 0.4) 0px 2px 4px,
-    rgba(0, 0, 0, 0.3) 0px 7px 13px -3px,
-    rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+  height: 280px;
+  object-fit: contain;
 }
 
-/* نصوص متجاوبة */
+/* النصوص */
 .product-card .card-title {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 800;
   color: #198754;
+  margin-bottom: 8px;
 }
 .product-card .price {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
   color: #8a65db;
+  margin-bottom: 10px;
 }
-.product-card .quantity {
-  font-size: 17px;
+.product-card .product-details {
+  width: 90%;
+  box-shadow:
+    rgba(50, 50, 93, 0.25) 0px 50px 100px -20px,
+    rgba(0, 0, 0, 0.3) 0px 30px 60px -30px,
+    rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
+  border: 1px solid #000;
+  border-radius: 10px;
+  padding: 10px;
+  margin: 5px auto;
 }
-.product-card .expiry {
-  font-size: 17px;
-  color: red;
+.product-card .product-details strong {
+  color: #3c97cfb2;
   font-weight: 900;
-  letter-spacing: 1px;
+  margin-right: 5px;
+}
+.product-card .product-details p {
+  margin: 2px 0;
+  font-size: 15px;
+  color: #472ec1;
+  font-weight: 600;
+  margin-left: 5px;
 }
 
 /* شريط الباركود */
 .barcode {
   width: 100%;
-  height: 90px;
-  margin-top: 8px;
+  margin-top: 12px;
   display: flex;
-  align-items: end;
+  align-items: center;
   justify-content: center;
 }
 .barcode img {
-  max-height: 80px;
+  max-height: 70px;
   max-width: 100%;
-  box-shadow:
-    rgba(6, 24, 44, 0.4) 0px 0px 0px 2px,
-    rgba(6, 24, 44, 0.65) 0px 4px 6px -1px,
-    rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
-  padding: 5px;
-  border-radius: 10px;
+  background: #fff;
+  padding: 6px;
+  border-radius: 8px;
+  box-shadow: rgba(6, 24, 44, 0.2) 0px 1px 3px;
 }
 
-/* أزرار التعديل والحذف */
-.btn-edit,
+/* الأزرار */
+.btn-edit {
+  background-color: #198754;
+  border: none;
+}
 .btn-delete {
-  font-size: 0.9rem;
-  padding: 0.35rem 0.6rem;
-  box-shadow: rgba(0, 0, 0, 0.45) 0px 25px 20px -20px;
+  background-color: #dc3545;
+  border: none;
+}
+.btn-edit:hover,
+.btn-delete:hover {
+  opacity: 0.9;
 }
 
-/* تفاعل hover */
+/* تفاعل hover على البطاقة */
 .product-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-/* استجابة الصور وارتفاعات أصغر على الشاشات الصغيرة */
+/* استجابة للشاشات الصغيرة */
 @media (max-width: 576px) {
   .product-card {
-    width: 90%;
+    width: 95%;
     margin: 10px auto;
   }
   .product-card .card-img-top {
     height: 200px;
-    width: 250px;
-    margin: 0 auto;
   }
-  .barcode {
-    height: 70px;
+  .product-card .price {
+    font-size: 16px;
+  }
+  .product-card .card-title {
+    font-size: 16px;
   }
 }
 
@@ -200,25 +217,6 @@ body {
   #sidebarToggle {
     display: none;
   } /* إخفاء زر التبديل على ديسكتوب */
-  .product-card {
-    height: 400px;
-  }
-  .product-card .expiry,
-  .product-card .card-title,
-  .product-card .quantity,
-  .product-card .price {
-    font-size: 13px;
-    font-weight: 800;
-  }
-  .product-card .card-img-top {
-    width: 100%;
-    height: 100px; /* ثابت بارتفاع مناسب */
-    display: block;
-  }
-  .barcode img {
-    max-height: 80px;
-    max-width: 100%;
-  }
 }
 .forJoute {
   display: none;

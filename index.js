@@ -104,36 +104,46 @@ app.post('/regi', async (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-  const message = req.session.message || null;
+  const message = req.session.message;
   req.session.message = null;
 
   if (message) {
-    // تحويل الرسالة إلى query parameter
     return res.redirect(`/login?message=${encodeURIComponent(message)}`);
   }
+
   res.sendFile(path.join(__dirname, 'views', 'login.html'));
 });
 
+// 🛠️ دالة مساعدة للرسائل مع إعادة التوجيه
+function setMessageAndRedirect(req, res, message, path = '/login') {
+  req.session.message = message;
+  return res.redirect(path);
+}
+
 app.post('/login', async (req, res) => {
-  const { password } = req.body;
-  const user = await User.findOne();
+  try {
+    const { email, password } = req.body;
 
-  if (!user) {
-    req.session.message = '❌ No user found, please register first.';
-    return res.redirect('/login'); // ⬅️ إعادة توجيه لعرض الرسالة
+    // 🔍 البحث عن المستخدم بالبريد (أو أي معيار عندك)
+    const user = await User.findOne({ email });
+    if (!user) {
+      return setMessageAndRedirect(req, res, '❌ No user found, please register first.');
+    }
+
+    // 🔑 التحقق من كلمة المرور
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return setMessageAndRedirect(req, res, '❌ Invalid password.');
+    }
+
+    // ✅ نجاح تسجيل الدخول
+    req.session.userId = user._id;
+    return res.redirect('/');
+
+  } catch (err) {
+    console.error("Login error:", err);
+    return setMessageAndRedirect(req, res, '⚠️ An unexpected error occurred. Please try again.');
   }
-
-  const match = await bcrypt.compare(password, user.password);
-  if (!match) {
-    req.session.message = '❌ Invalid password.';
-    return res.redirect('/login'); // ⬅️ إعادة توجيه لعرض الرسالة
-  }
-
-  // ✅ حفظ session
-  req.session.userId = user._id;
-
-  // ✅ إعادة التوجيه إلى الصفحة الرئيسية
-  res.redirect('/');
 });
 
 app.get('/', isAuth, (req, res) => {
@@ -240,8 +250,7 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
 // 🟢 API: إضافة منتج جديد
 app.post('/api/products', async (req, res) => {
   try {
-    const { name, barcode, price, quantity, expiry,visibility,
-      category, image } = req.body;
+    const { name, barcode, price, quantity, expiry, visibility, category, image } = req.body;
 
     // ننشئ المنتج
     const newProduct = new Product({
@@ -300,8 +309,7 @@ app.put('/api/products/:id', async (req, res) => {
   try {
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
-      { name, price, quantity, barcode, expiry,visibility,
-      category, image },
+      { name, price, quantity, barcode, expiry, visibility, category, image },
       { new: true, runValidators: true } // لإرجاع المنتج بعد التحديث
     );
 
