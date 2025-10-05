@@ -261,6 +261,8 @@ app.post('/api/products', async (req, res) => {
       expiry,
       visibility,
       category,
+      promotion,
+      fournisseur,
       image, // هذا سيكون Base64 string
     });
 
@@ -304,12 +306,24 @@ app.delete('/api/products/:id', async (req, res) => {
 // PUT /api/products/:id
 app.put('/api/products/:id', async (req, res) => {
   const { id } = req.params;
-  const { name, price, quantity, barcode, expiry, visibility, category, image } = req.body;
+  const {
+    name,
+    price,
+    quantity,
+    barcode,
+    expiry,
+    visibility,
+    category,
+    promotion,
+    fournisseur,
+    image,
+  } = req.body;
 
   try {
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
-      { name, price, quantity, barcode, expiry, visibility, category, image },
+      { name, price, quantity, barcode, expiry, visibility, category,promotion,
+    fournisseur, image },
       { new: true, runValidators: true } // لإرجاع المنتج بعد التحديث
     );
 
@@ -556,13 +570,12 @@ app.delete('/api/vente/:id', async (req, res) => {
   }
 });
 
-
 // ======================
 // 📌 API Routes
 // ======================
 
 // 📍 GET كل الزبناء
-app.get("/api/customers", async (req, res) => {
+app.get('/api/customers', async (req, res) => {
   try {
     const customers = await Customer.find();
     res.json(customers);
@@ -572,7 +585,7 @@ app.get("/api/customers", async (req, res) => {
 });
 
 // 📍 POST إضافة زبون جديد
-app.post("/api/customers", async (req, res) => {
+app.post('/api/customers', async (req, res) => {
   try {
     const customer = new Customer(req.body);
     await customer.save();
@@ -625,15 +638,14 @@ app.put('/api/customers/:id', async (req, res) => {
   }
 });
 // 📍 DELETE حذف زبون
-app.delete("/api/customers/:id", async (req, res) => {
+app.delete('/api/customers/:id', async (req, res) => {
   try {
     await Customer.findByIdAndDelete(req.params.id);
-    res.json({ message: "Client supprimé avec succès" });
+    res.json({ message: 'Client supprimé avec succès' });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
-
 
 // تسجيل الخروج
 app.get('/logout', (req, res) => {

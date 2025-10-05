@@ -206,6 +206,22 @@
                 required
               />
             </div>
+            <div class="col-md-4">
+              <label class="form-label">Date d’expiration</label>
+              <input
+                type="date"
+                class="form-control"
+                id="expiry"
+              />
+            </div>
+            <div class="col-12">
+              <label class="form-label">Name Du Fournisseur</label>
+              <input
+                type="text"
+                class="form-control"
+                id="fournisseur"
+              />
+            </div>
             <div class="col-12">
               <label
                 for="productVisibility"
@@ -228,13 +244,27 @@
                 <option value="non">Non</option>
               </select>
             </div>
-            <div class="col-md-4">
-              <label class="form-label">Date d’expiration</label>
-              <input
-                type="date"
-                class="form-control"
-                id="expiry"
-              />
+            <div class="col-12">
+              <label
+                for="productPromotion"
+                class="form-label"
+                >Ce produit est-il en promotion ?</label
+              >
+              <select
+                class="form-select"
+                id="productPromotion"
+                required
+              >
+                <option
+                  selected
+                  disabled
+                  value=""
+                >
+                  Choisissez...
+                </option>
+                <option value="oui">Oui</option>
+                <option value="non">Non</option>
+              </select>
             </div>
             <div class="col-12">
               <label class="form-label">Image (optionnel)</label>
@@ -367,6 +397,14 @@
               />
             </div>
             <div class="col-12">
+              <label class="form-label">Name Du Fournisseur</label>
+              <input
+                type="text"
+                class="form-control"
+                id="editFournisseur"
+              />
+            </div>
+            <div class="col-12">
               <label
                 for="editVisibility"
                 class="form-label"
@@ -375,6 +413,28 @@
               <select
                 class="form-select"
                 id="editVisibility"
+                required
+              >
+                <option
+                  selected
+                  disabled
+                  value=""
+                >
+                  Choisissez...
+                </option>
+                <option value="oui">Oui</option>
+                <option value="non">Non</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label
+                for="editPromotion"
+                class="form-label"
+                >Ce produit est-il en promotion ?</label
+              >
+              <select
+                class="form-select"
+                id="editPromotion"
                 required
               >
                 <option

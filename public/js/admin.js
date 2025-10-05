@@ -217,6 +217,8 @@ function renderProducts(list = products) {
         <p><strong>Quantité:</strong> <span class="qty">${p.quantity ?? '-'}</span></p>
         <p><strong>Catégorie:</strong> ${escapeHtml(p.category || '-')}</p>
         <p><strong>Visibilité:</strong> ${escapeHtml(p.visibility || '-')}</p>
+        <p><strong>Promotion:</strong> ${escapeHtml(p.promotion || '-')}</p>
+        <p><strong>Fournisseur:</strong> ${escapeHtml(p.fournisseur || '-')}</p>
         <p><strong>Expiration:</strong> ${expiryDate}</p>
       </div>
 
@@ -253,6 +255,8 @@ function renderProducts(list = products) {
         document.getElementById('editImgeUrl').value = p.image;
         document.getElementById('editVisibility').value = p.visibility;
         document.getElementById('editCategory').value = p.category;
+        document.getElementById('editPromotion').value = p.promotion;
+        document.getElementById('editFournisseur').value = p.fournisseur;
         if (editModal) editModal.show();
       });
     }
@@ -356,6 +360,8 @@ if (editForm) {
       expiry: document.getElementById('editExpiry')?.value || '',
       visibility: document.getElementById('editVisibility')?.value || 'oui', // valeur par défaut
       category: document.getElementById('editCategory')?.value || '',
+      fournisseur: document.getElementById('editFournisseur')?.value || '',
+      promotion: document.getElementById('editPromotion')?.value || '',
       image: document.getElementById('editImgeUrl')?.value || '',
     };
 

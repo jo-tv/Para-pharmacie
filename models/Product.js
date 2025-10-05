@@ -10,6 +10,8 @@ const productSchema = new mongoose.Schema(
     image: { type: String },
     visibility: { type: String },
     category: { type: String },
+    promotion : { type: String },
+    fournisseur : { type: String },
   },
   { timestamps: true } // يضيف createdAt و updatedAt
 );
