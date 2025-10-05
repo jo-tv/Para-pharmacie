@@ -11,6 +11,7 @@ import session from 'express-session';
 import Product from './models/Product.js';
 import Sale from './models/Sale.js';
 import User from './models/User.js';
+import Customer from './models/Customer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -139,9 +140,8 @@ app.post('/login', async (req, res) => {
     // ✅ نجاح تسجيل الدخول
     req.session.userId = user._id;
     return res.redirect('/');
-
   } catch (err) {
-    console.error("Login error:", err);
+    console.error('Login error:', err);
     return setMessageAndRedirect(req, res, '⚠️ An unexpected error occurred. Please try again.');
   }
 });
@@ -333,6 +333,9 @@ app.get('/ticket', isAuth, (req, res) => {
 });
 app.get('/facture', isAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'facture.html'));
+});
+app.get('/client', isAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'client.html'));
 });
 
 // ✅ API لحساب مجموع المبيعات اليومية
@@ -552,6 +555,85 @@ app.delete('/api/vente/:id', async (req, res) => {
     res.status(500).json({ ok: false, message: 'Erreur serveur' });
   }
 });
+
+
+// ======================
+// 📌 API Routes
+// ======================
+
+// 📍 GET كل الزبناء
+app.get("/api/customers", async (req, res) => {
+  try {
+    const customers = await Customer.find();
+    res.json(customers);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 📍 POST إضافة زبون جديد
+app.post("/api/customers", async (req, res) => {
+  try {
+    const customer = new Customer(req.body);
+    await customer.save();
+    res.status(201).json(customer);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// 📍 PUT تعديل زبون
+// تأكد من أن لديك: app.use(express.json());
+
+/* GET عميل واحد */
+app.get('/api/customers/:id', async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.isValidObjectId(id)) {
+    return res.status(400).json({ ok: false, error: 'Invalid id' });
+  }
+  try {
+    const customer = await Customer.findById(id);
+    if (!customer) return res.status(404).json({ ok: false, error: 'Client non trouvé' });
+    res.json(customer);
+  } catch (err) {
+    console.error('GET /api/customers/:id error', err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+/* PUT تعديل عميل */
+app.put('/api/customers/:id', async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.isValidObjectId(id)) {
+    return res.status(400).json({ ok: false, error: 'Invalid id' });
+  }
+
+  try {
+    const updated = await Customer.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true, // يشغّل validators من schema لو موجودة
+    });
+
+    if (!updated) {
+      return res.status(404).json({ ok: false, error: 'Client non trouvé' });
+    }
+
+    return res.json({ ok: true, customer: updated });
+  } catch (err) {
+    console.error('PUT /api/customers/:id error', err);
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+// 📍 DELETE حذف زبون
+app.delete("/api/customers/:id", async (req, res) => {
+  try {
+    await Customer.findByIdAndDelete(req.params.id);
+    res.json({ message: "Client supprimé avec succès" });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 
 // تسجيل الخروج
 app.get('/logout', (req, res) => {

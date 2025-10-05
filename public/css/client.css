@@ -1,0 +1,298 @@
+/* SIDEBAR */
+body {
+  background: #f8f9fa;
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  overflow-x: hidden;
+}
+
+#sidebar {
+  min-width: 220px;
+  max-width: 220px;
+  background: #343a40;
+  color: #fff;
+  transition:
+    left 0.3s ease,
+    transform 0.3s ease;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: -220px; /* مخفي افتراضيا على الموبايل */
+  z-index: 1000;
+  overflow-y: auto;
+}
+#sidebar.active {
+  left: 0;
+}
+#sidebar .nav-link {
+  color: #fff;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 900;
+  border-radius: 0.5rem;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  transition: 0.25s;
+}
+#sidebar .nav-link i {
+  margin-right: 10px;
+  font-size: 20px;
+}
+#sidebar .nav-link:hover {
+  background: #495057;
+  color: #0dcaf0;
+  transform: translateX(5px);
+}
+#sidebar .nav-link.active {
+  background: #0dcaf0;
+  color: #fff;
+}
+
+/* CONTENT */
+#content {
+  flex: 1;
+  padding: 20px;
+  margin-left: 0; /* يتغير عند وجود sidebar */
+  transition: margin-left 0.3s ease;
+  width: 100%;
+}
+/* عندما نضيف هذه الكلاس يتم دف المحتوى لليمين */
+.withSidebar {
+  margin-left: 220px !important;
+}
+
+/* زر القائمة للهواتف */
+#sidebarToggle {
+  display: inline-block;
+}
+
+/* عندما تكون الشاشة كبيرة، نُبقي sidebar مفتوحًا دائمًا */
+@media (min-width: 768px) {
+  #sidebar {
+    left: 0;
+  }
+  #sidebar.active {
+    left: 0;
+  }
+  #sidebarToggle {
+    display: none;
+  } /* إخفاء زر التبديل على ديسكتوب */
+}
+.toggle-btn {
+  background: #28a745;
+  color: white;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+.toggle-btn:hover {
+  background: #218838;
+}
+
+/* لما نضيف الكلاس active يبان */
+#formContainer.active {
+  display: block;
+}
+.form-container {
+  background: #fff;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-width: 420px;
+  margin: auto;
+  display: none;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-container.active {
+  display: flex;
+}
+
+.form-container h2 {
+  text-align: center;
+  margin-bottom: 15px;
+  color: #2b2b2b;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.input-group label {
+  font-weight: 600;
+  color: #333;
+  font-size: 15px;
+  margin-top: 10px;
+}
+
+.input-group label i {
+  color: #007bff;
+  margin-right: 5px;
+}
+
+.input-group input {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.input-group input:focus {
+  border-color: #007bff;
+}
+
+.add-btn {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background 0.3s;
+  margin: 15px auto;
+  width: 90%;
+}
+
+.add-btn:hover {
+  background: #0056b3;
+}
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: linear-gradient(135deg, #ffffff, #f0f4f9);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+  position: relative;
+  letter-spacing: 1px;
+}
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card h3 {
+  margin: 0;
+  padding: 10px 0;
+  color: #007bff;
+  font-size: 20px;
+}
+.card i {
+  font-size: 16px;
+  color: #647cdcad;
+}
+.card p {
+  margin: 6px 0;
+  font-size: 14px;
+  color: #333;
+}
+.card strong {
+  color: red;
+  padding: 0 5px;
+  margin: 0 auto;
+  font-weight: 600;
+}
+.card .actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.card button {
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-right: 5px;
+  font-size: 14px;
+}
+.edit-btn {
+  background: #ffc107;
+  color: white;
+}
+.edit-btn:hover {
+  background: #e0a800;
+}
+.delete-btn {
+  background: #dc3545;
+  color: white;
+}
+.delete-btn:hover {
+  background: #c82333;
+}
+.txt {
+  color: #fff;
+  font-size: 3em;
+  font-weight: bold;
+  font-family: Helvetica;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-shadow:
+    0 1px 0 #ccc,
+    0 2px 0 #c9c9c9,
+    0 3px 0 #bbb,
+    0 4px 0 #b9b9b9,
+    0 5px 0 #aaa,
+    0 6px 1px rgba(0, 0, 0, 0.1),
+    0 0 5px rgba(0, 0, 0, 0.1),
+    0 1px 3px rgba(0, 0, 0, 0.3),
+    0 3px 5px rgba(0, 0, 0, 0.2),
+    0 5px 10px rgba(0, 0, 0, 0.25),
+    0 10px 10px rgba(0, 0, 0, 0.2),
+    0 20px 20px rgba(0, 0, 0, 0.15);
+}
+.txt {
+  text-align: center;
+}
+
+.txt i {
+  color: #853bd1bf;
+  font-size: 4rem;
+}
+@media (max-width: 768px) {
+  .txt {
+    font-size: 25px !important;
+    text-align: right !important;
+  }
+  .txt i {
+    font-size: 36px !important;
+  }
+}
+.search-box {
+  margin: 20px 0;
+  text-align: center;
+}
+
+#searchInput {
+  width: 80%;
+  max-width: 400px;
+  padding: 10px 15px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 25px;
+  outline: none;
+}
+
+#searchInput:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.4);
+}

@@ -6,14 +6,6 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
-body {
-  background: #f8f9fa;
-  min-height: 100vh;
-  display: flex;
-  overflow-x: hidden; /* منع overflow أفقي */
-  margin: 0;
-}
-
 h6 {
   font-size: 1em;
 }
@@ -73,13 +65,15 @@ table {
 /* ✅ الفوتر */
 .footer {
   text-align: center;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 700;
   margin-top: auto; /* يضمن يكون أسفل */
+  line-height: 30px;
 }
 
 .footer p {
   margin: 5px 0;
+  letter-spacing: 1px;
 }
 
 /* SIDEBAR */
@@ -179,6 +173,7 @@ table {
   #pdfBtn,
   #sidebar,
   .navbar-brand,
+  .search-section,
   #sidebarToggle {
     display: none !important;
   }
@@ -206,8 +201,8 @@ table {
   .footer {
     margin-top: auto; /* يخلي الفوتر ينزل لأسفل الصفحة */
     text-align: center;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 18px;
+    font-weight: 600;
   }
   .barcode {
     position: relative;
@@ -218,4 +213,79 @@ table {
     size: A4;
     margin: 0;
   }
+}
+
+.search-section {
+  max-width: 600px;
+  margin: 20px auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.search-section h3 {
+  text-align: center;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.search-bar {
+  display: flex;
+  gap: 8px;
+}
+
+#searchCustomerInput {
+  flex: 1;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+}
+
+#searchBtn {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+#searchBtn:hover {
+  background: #0056b3;
+}
+
+#customerResults {
+  list-style: none;
+  margin-top: 20px;
+  margin: 0 auto;
+  padding: 0;
+  width: 90%;
+  max-height: 220px;
+  overflow-y: auto;
+  border-top: 1px solid #eee;
+  position: absolute;
+  z-index: 10000;
+  background-image: linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%);
+  box-shadow:
+    rgba(0, 0, 0, 0.4) 0px 2px 4px,
+    rgba(0, 0, 0, 0.3) 0px 7px 13px -3px,
+    rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+}
+
+#customerResults li {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#customerResults li:hover {
+  background: #f5f5f5;
+}
+
+#customerResults li strong {
+  color: #007bff;
 }
