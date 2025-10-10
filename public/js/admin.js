@@ -318,6 +318,8 @@ if (form) {
       image: imageUrl || imageUrl2,
       visibility: document.getElementById('productVisibility').value || '', // "oui" أو "non"
       category: document.getElementById('productCategory').value || '',
+      promotion: document.getElementById('productPromotion').value || '',
+      fournisseur: document.getElementById('fournisseur').value || '',
     };
 
     try {
