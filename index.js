@@ -250,7 +250,8 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
 // 🟢 API: إضافة منتج جديد
 app.post('/api/products', async (req, res) => {
   try {
-    const { name, barcode, price, quantity, expiry, visibility, category, image } = req.body;
+    const { name, barcode, price, quantity, expiry, visibility, category,promotion,
+      fournisseur, image } = req.body;
 
     // ننشئ المنتج
     const newProduct = new Product({
