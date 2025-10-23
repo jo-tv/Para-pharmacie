@@ -218,6 +218,7 @@ function renderProducts(list = products) {
         <p><strong>Catégorie:</strong> ${escapeHtml(p.category || '-')}</p>
         <p><strong>Visibilité:</strong> ${escapeHtml(p.visibility || '-')}</p>
         <p><strong>Promotion:</strong> ${escapeHtml(p.promotion || '-')}</p>
+        <p><strong>Prix Promo:</strong> ${escapeHtml(p.pricePromo || '0')} DH</p>
         <p><strong>Fournisseur:</strong> ${escapeHtml(p.fournisseur || '-')}</p>
         <p><strong>Expiration:</strong> ${expiryDate}</p>
       </div>
@@ -247,6 +248,7 @@ function renderProducts(list = products) {
         document.getElementById('editId').value = p._id;
         document.getElementById('editName').value = p.name || '';
         document.getElementById('editPrice').value = p.price || 0;
+        document.getElementById('editPricePromo').value = p.pricePromo || 0;
         document.getElementById('editQuantity').value = p.quantity || 0;
         document.getElementById('editBarcode').value = p.barcode || '';
         document.getElementById('editExpiry').value = p.expiry
@@ -313,6 +315,7 @@ if (form) {
       name: document.getElementById('name').value,
       barcode: document.getElementById('barcode').value,
       price: parseFloat(document.getElementById('price').value) || 0,
+      pricePromo: parseFloat(document.getElementById('pricePromo').value) || 0,
       quantity: parseInt(document.getElementById('quantity').value) || 0,
       expiry: document.getElementById('expiry').value,
       image: imageUrl || imageUrl2,
@@ -358,6 +361,7 @@ if (editForm) {
       name: document.getElementById('editName')?.value || '',
       barcode: document.getElementById('editBarcode')?.value || '',
       price: parseFloat(document.getElementById('editPrice')?.value) || 0,
+      pricePromo: parseFloat(document.getElementById('editPricePromo')?.value) || 0,
       quantity: parseInt(document.getElementById('editQuantity')?.value) || 0,
       expiry: document.getElementById('editExpiry')?.value || '',
       visibility: document.getElementById('editVisibility')?.value || 'oui', // valeur par défaut
@@ -436,9 +440,23 @@ function updateLocalStorage() {
 /* ====== Initial load ====== */
 loadProducts();
 
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker
-    .register('/sw.js')
-    .then(() => console.log('Service Worker مسجل بنجاح'))
-    .catch((err) => console.error('فشل تسجيل SW:', err));
-}
+// تعريف المتغيرات خارج الدالة لضمان الوصول إليها بكفاءة
+let productPromotion = document.querySelector('#productPromotion');
+let pricePromotion = document.querySelector('.prixPromo');
+
+// يجب أن تتأكد أن هذين العنصرين موجودان في ملف HTML
+// <select id="productPromotion">...</select>
+// <div id="pricePromotion" style="display:none;">...</div>
+
+// إضافة مُستمع الحدث (Event Listener)
+productPromotion.addEventListener('change', () => {
+  function tcheckInput() {
+    // استخدم المتغير الذي تم تعريفه مسبقًا
+    if (productPromotion.value === 'oui') {
+      pricePromotion.style.display = 'block'; // إظهار العنصر
+    } else {
+      pricePromotion.style.display = 'none'; // إخفاء العنصر
+    }
+  }
+  tcheckInput(); // استدعاء الدالة عند تغيير قيمة productPromotion
+});

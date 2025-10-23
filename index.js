@@ -250,14 +250,26 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
 // 🟢 API: إضافة منتج جديد
 app.post('/api/products', async (req, res) => {
   try {
-    const { name, barcode, price, quantity, expiry, visibility, category,promotion,
-      fournisseur, image } = req.body;
+    const {
+      name,
+      barcode,
+      price,
+      quantity,
+      expiry,
+      visibility,
+      category,
+      promotion,
+      fournisseur,
+      pricePromo,
+      image,
+    } = req.body;
 
     // ننشئ المنتج
     const newProduct = new Product({
       name,
       barcode,
       price,
+      pricePromo,
       quantity,
       expiry,
       visibility,
@@ -310,6 +322,7 @@ app.put('/api/products/:id', async (req, res) => {
   const {
     name,
     price,
+    pricePromo,
     quantity,
     barcode,
     expiry,
@@ -323,8 +336,19 @@ app.put('/api/products/:id', async (req, res) => {
   try {
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
-      { name, price, quantity, barcode, expiry, visibility, category,promotion,
-    fournisseur, image },
+      {
+        name,
+        price,
+        pricePromo,
+        quantity,
+        barcode,
+        expiry,
+        visibility,
+        category,
+        promotion,
+        fournisseur,
+        image,
+      },
       { new: true, runValidators: true } // لإرجاع المنتج بعد التحديث
     );
 
