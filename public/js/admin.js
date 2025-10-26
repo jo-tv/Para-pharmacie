@@ -293,58 +293,99 @@ function renderProducts(list = products) {
 }
 
 /* ====== Formulaire ajout produit ====== */
+
 if (form) {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const imageInput = document.getElementById('imageFile');
-    const imageUrl2 = document.getElementById('imageUrl2').value;
     const file = imageInput?.files?.[0];
     let imageUrl = '';
 
-    if (file) {
-      imageUrl = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+    // التحقق من الحقول الأساسية
+    const name = document.getElementById('name').value.trim();
+    const barcode = document.getElementById('barcode').value.trim();
+
+    if (!name || !barcode) {
+      return (messageDiv.innerHTML = `<div class="alert alert-warning">Veuillez remplir le nom et le code-barres du produit.</div>`);
     }
 
-    const newProduct = {
-      name: document.getElementById('name').value,
-      barcode: document.getElementById('barcode').value,
-      price: parseFloat(document.getElementById('price').value) || 0,
-      pricePromo: parseFloat(document.getElementById('pricePromo').value) || 0,
-      quantity: parseInt(document.getElementById('quantity').value) || 0,
-      expiry: document.getElementById('expiry').value,
-      image: imageUrl || imageUrl2,
-      visibility: document.getElementById('productVisibility').value || '', // "oui" أو "non"
-      category: document.getElementById('productCategory').value || '',
-      promotion: document.getElementById('productPromotion').value || '',
-      fournisseur: document.getElementById('fournisseur').value || '',
-    };
-
     try {
+      // رفع الصورة إلى Cloudinary إذا اختار المستخدم صورة
+      if (file) {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
+        const uploadData = await uploadRes.json();
+
+        console.log('📥 Réponse upload image:', uploadData);
+
+        if (!uploadData.ok) {
+          return (messageDiv.innerHTML = `<div class="alert alert-danger">Erreur lors du téléchargement de l’image</div>`);
+        }
+
+        imageUrl = uploadData.url;
+      } else {
+        // رابط الصورة الافتراضية
+        imageUrl =
+          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOQOzK3if8ubYIFpjwxQ8kf6D7XYHZfbhD-iMvupcsBQ&s=10';
+      }
+
+      // إنشاء المنتج
+      const newProduct = {
+        name,
+        barcode,
+        price: parseFloat(document.getElementById('price').value) || 0,
+        pricePromo: parseFloat(document.getElementById('pricePromo').value) || 0,
+        quantity: parseInt(document.getElementById('quantity').value) || 0,
+        expiry: document.getElementById('expiry').value,
+        image: imageUrl,
+        visibility: document.getElementById('productVisibility').value || '',
+        category: document.getElementById('productCategory').value || '',
+        promotion: document.getElementById('productPromotion').value || '',
+        fournisseur: document.getElementById('fournisseur').value || '',
+      };
+
+      console.log('📤 Envoi du produit:', newProduct);
+
+      // إرسال المنتج إلى السيرفر
       const res = await fetch('/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newProduct),
       });
+
       const data = await res.json();
+      console.log('📥 Réponse du serveur:', data);
+
       if (res.ok) {
-        products.push({ ...newProduct, _id: data._id || String(Date.now()) });
+        // أضف المنتج في بداية المصفوفة
+        products.unshift({ ...newProduct, _id: data._id || String(Date.now()) });
+
+        // عرض الصفحة الأولى لظهور المنتج الجديد
+        currentPage = 1;
+
+        // تحديث localStorage
         updateLocalStorage();
+
+        // إعادة عرض المنتجات
         renderProducts(products);
+
+        // إعادة ضبط الفورم
         form.reset();
+
         messageDiv.innerHTML = `<div class="alert alert-success">${
-          data.message || 'Produit ajouté'
+          data.message || 'Produit ajouté avec succès'
         }</div>`;
       } else {
-        messageDiv.innerHTML = `<div class="alert alert-danger">${data.error || 'Erreur'}</div>`;
+        console.error('❌ Erreur serveur:', data.error);
+        messageDiv.innerHTML = `<div class="alert alert-danger">${
+          data.error || 'Erreur lors de l’ajout du produit'
+        }</div>`;
       }
     } catch (err) {
-      console.error(err);
+      console.error('❌ Erreur fetch:', err);
       messageDiv.innerHTML = `<div class="alert alert-danger">Erreur lors de l’envoi des données</div>`;
     }
   });
@@ -355,43 +396,64 @@ if (editForm) {
   editForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const id = document.getElementById('editId')?.value || null;
+    const id = document.getElementById('editId')?.value;
+    if (!id) return alert('ID produit manquant');
 
-    const updated = {
-      name: document.getElementById('editName')?.value || '',
-      barcode: document.getElementById('editBarcode')?.value || '',
-      price: parseFloat(document.getElementById('editPrice')?.value) || 0,
-      pricePromo: parseFloat(document.getElementById('editPricePromo')?.value) || 0,
-      quantity: parseInt(document.getElementById('editQuantity')?.value) || 0,
-      expiry: document.getElementById('editExpiry')?.value || '',
-      visibility: document.getElementById('editVisibility')?.value || 'oui', // valeur par défaut
-      category: document.getElementById('editCategory')?.value || '',
-      fournisseur: document.getElementById('editFournisseur')?.value || '',
-      promotion: document.getElementById('editPromotion')?.value || '',
-      image: document.getElementById('editImgeUrl')?.value || '',
-    };
-
-    console.log(updated);
+    const fileInput = document.getElementById('editImageFile');
+    const file = fileInput?.files?.[0];
+    let imageUrl = document.getElementById('editImgeUrl')?.value || '';
 
     try {
+      // رفع الصورة إذا اختار المستخدم ملف جديد
+      if (file) {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
+        const uploadData = await uploadRes.json();
+
+        if (!uploadData.ok) {
+          return alert('Erreur lors du téléchargement de l’image');
+        }
+
+        imageUrl = uploadData.url; // رابط Cloudinary الجديد
+      }
+
+      const updatedProduct = {
+        name: document.getElementById('editName')?.value.trim() || '',
+        barcode: document.getElementById('editBarcode')?.value.trim() || '',
+        price: parseFloat(document.getElementById('editPrice')?.value) || 0,
+        pricePromo: parseFloat(document.getElementById('editPricePromo')?.value) || 0,
+        quantity: parseInt(document.getElementById('editQuantity')?.value) || 0,
+        expiry: document.getElementById('editExpiry')?.value || '',
+        visibility: document.getElementById('editVisibility')?.value || 'oui',
+        category: document.getElementById('editCategory')?.value || '',
+        fournisseur: document.getElementById('editFournisseur')?.value || '',
+        promotion: document.getElementById('editPromotion')?.value || '',
+        image: imageUrl, // رابط الصورة الجديد أو القديم
+      };
+
       const res = await fetch(`/api/products/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updated),
+        body: JSON.stringify(updatedProduct),
       });
+
       const data = await res.json();
 
-      if (data.product) {
+      if (res.ok && data.product) {
+        // تحديث المنتج في الواجهة مباشرة
         const index = products.findIndex((p) => p._id === id);
         if (index > -1) products[index] = data.product;
         updateLocalStorage();
         renderProducts(products);
+
         if (editModal) editModal.hide();
       } else {
-        alert(data.message || 'Erreur modification');
+        alert(data.error || 'Erreur modification');
       }
     } catch (err) {
-      console.error(err);
+      console.error('❌ Erreur modification produit:', err);
       alert('Erreur lors de la mise à jour');
     }
   });

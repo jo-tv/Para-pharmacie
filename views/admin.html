@@ -320,7 +320,6 @@
                   step="0.01"
                   class="form-control"
                   id="pricePromo"
-                  required
                 />
               </div>
             </div>
@@ -545,10 +544,7 @@
             </div>
 
             <!-- Prix en promotion -->
-            <div
-              class="mb-3 promo"
-              
-            >
+            <div class="mb-3 promo">
               <label class="form-label"
                 ><i class="fa-solid fa-tags me-2 text-danger"></i>Prix en Promotion</label
               >
@@ -556,7 +552,6 @@
                 type="number"
                 id="editPricePromo"
                 class="form-control"
-                required
               />
             </div>
 
@@ -571,6 +566,18 @@
                 class="form-control"
                 required
               />
+            </div>
+            <div class="col-12">
+              <label class="form-label">Image (optionnel)</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-image"></i></span>
+                <input
+                  type="file"
+                  class="form-control"
+                  id="editImageFile"
+                  accept="image/*"
+                />
+              </div>
             </div>
 
             <!-- Image -->

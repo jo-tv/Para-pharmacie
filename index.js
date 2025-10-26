@@ -8,10 +8,22 @@ import { fileURLToPath } from 'url';
 import bcrypt from 'bcrypt';
 import bodyParser from 'body-parser';
 import session from 'express-session';
+import compression from 'compression';
 import Product from './models/Product.js';
 import Sale from './models/Sale.js';
 import User from './models/User.js';
 import Customer from './models/Customer.js';
+import MongoStore from 'connect-mongo';
+// CommonJS
+// const cloudinary = require('cloudinary').v2;
+
+// أو ES Module
+import { v2 as cloudinary } from 'cloudinary';
+cloudinary.config({
+  cloud_name: 'dvvknaxx6', // CLOUD_NAME
+  api_key: '955798727236253', // API_KEY
+  api_secret: 'Art43qa10C8-3pOliHqiV92JbHw', // API_SECRET
+});
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,17 +32,21 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+// زيادة الحد من 100kb (الافتراضي) إلى 10MB
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public', { maxAge: '1d' }));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+// 🟢 تفعيل الضغط لجميع الاستجابات
+app.use(compression());
+
 // ✅ إعداد session
 
 // 🟢 أولًا: ضبط الجلسة
-
-import MongoStore from 'connect-mongo';
-
 app.use(
   session({
     secret: 'my_secret_key',
@@ -61,11 +77,9 @@ mongoose
 // routes/sales.js
 
 // إعداد multer لرفع الملفات
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
-});
-const upload = multer({ storage });
+
+const storage = multer.memoryStorage(); // تخزين بالذاكرة
+const upload = multer({ storage }); // الآن req.file.buffer جاهز للرفع
 
 // 📄 عرض صفحة index.html
 app.get('/regi', (req, res) => {
@@ -211,45 +225,34 @@ app.get('/api/products/search', isAuth, async (req, res) => {
 });
 
 // POST /api/upload
-app.post('/api/upload', upload.single('image'), (req, res) => {
+// استخدم التخزين بالذاكرة بدل القرص
+
+app.post('/api/upload', upload.single('image'), async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({
-        ok: false,
-        message: '❌ Aucun fichier reçu',
-      });
+    if (!req.file || !req.file.buffer) {
+      return res.status(400).json({ ok: false, message: 'Aucun fichier reçu' });
     }
 
-    // السماح فقط بالصور
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    if (!allowedTypes.includes(req.file.mimetype)) {
-      return res.status(400).json({
-        ok: false,
-        message: '❌ Seules les images (jpeg, png, gif, webp) sont autorisées',
+    const result = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream({ folder: 'uploads' }, (error, result) => {
+        if (error) reject(error);
+        else resolve(result);
       });
-    }
-
-    // رابط كامل للملف
-    const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-
-    return res.json({
-      ok: true,
-      url: fileUrl,
-      filename: req.file.filename,
-      size: req.file.size,
+      stream.end(req.file.buffer);
     });
+
+    res.json({ ok: true, url: result.secure_url });
   } catch (err) {
     console.error('Erreur upload:', err);
-    return res.status(500).json({
-      ok: false,
-      message: '❌ Erreur lors du téléchargement',
-    });
+    res.status(500).json({ ok: false, message: 'Erreur lors du téléchargement sur Cloudinary' });
   }
 });
 
 // 🟢 API: إضافة منتج جديد
 app.post('/api/products', async (req, res) => {
   try {
+    console.log('🟢 Requête reçue pour ajouter un produit:', req.body);
+
     const {
       name,
       barcode,
@@ -261,10 +264,18 @@ app.post('/api/products', async (req, res) => {
       promotion,
       fournisseur,
       pricePromo,
-      image,
+      image, // هذا من المفترض أن يكون رابط Cloudinary بعد رفع الصورة
     } = req.body;
 
-    // ننشئ المنتج
+    // التحقق من وجود الصورة
+    if (!image) {
+      console.warn('⚠️ Aucune image fournie pour ce produit.');
+      return res.status(400).json({
+        error: 'Veuillez fournir une image pour le produit.',
+      });
+    }
+
+    // إنشاء المنتج
     const newProduct = new Product({
       name,
       barcode,
@@ -276,10 +287,12 @@ app.post('/api/products', async (req, res) => {
       category,
       promotion,
       fournisseur,
-      image, // هذا سيكون Base64 string
+      image, // الرابط الذي أرسلته من Cloudinary
     });
 
     await newProduct.save();
+
+    console.log('✅ Produit ajouté avec succès:', newProduct);
 
     res.json({
       message: 'Produit ajouté avec succès ✅',
@@ -288,11 +301,11 @@ app.post('/api/products', async (req, res) => {
   } catch (err) {
     // 🟢 التحقق من خطأ تكرار الـ barcode
     if (err.code === 11000 && err.keyPattern?.barcode) {
+      console.error('❌ Barcode dupliqué:', req.body.barcode);
       return res.status(400).json({
         error: `Le code-barres "${req.body.barcode}" existe déjà. Veuillez utiliser un code-barres unique. ❌`,
       });
     }
-
     // باقي الأخطاء
     console.error('❌ Error while adding product:', err);
     res.status(400).json({
