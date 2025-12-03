@@ -178,7 +178,7 @@ app.get('/caisse', isAuth, (req, res) => {
 
 // جلب كل المنتجات
 app.get('/api/products', async (req, res) => {
-  const { page = 1, limit = 100 } = req.query; // افتراضي: 100 منتج
+  const { page = 1, limit = 6000 } = req.query; // افتراضي: 100 منتج
   try {
     const products = await Product.find()
       .sort({ createdAt: -1 })
