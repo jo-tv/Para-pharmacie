@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <link
+      rel="manifest"
+      href="manifest.json"
+    />
+    <meta
+      name="theme-color"
+      content="#2196f3"
+    />
+
+    <!-- أيقونة أساسية -->
+    <link
+      rel="icon"
+      href="/icons/icon-192.png"
+    />
+    <title>Catalogue & Ajouter Produit</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="css/admin.css"
+      type="text/css"
+      media="all"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <!-- Sidebar -->
+    <nav
+      id="sidebar"
+      class="d-flex flex-column p-3"
+    >
+      <a
+        href="#"
+        class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none"
+      >
+        <i class="bi bi-heart-pulse-fill fs-4 me-2"></i>
+        <span class="fs-4">Parapharmacie</span>
+      </a>
+      <hr />
+      <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+          <a
+            href="/"
+            class="nav-link"
+            ><i class="bi bi-speedometer2 me-2"></i> Dashboard</a
+          >
+        </li>
+        <li>
+          <a
+            href="/caisse"
+            class="nav-link"
+            ><i class="bi bi-cart-plus"></i> Caisse</a
+          >
+        </li>
+        <li>
+          <a
+            href="/ticket"
+            class="nav-link"
+            ><i class="bi bi-bag-check-fill"></i> Ticket</a
+          >
+        </li>
+        <li>
+          <a
+            href="/ajouter"
+            class="nav-link active"
+            ><i class="bi bi-box-seam me-2"></i> Ajouter Produit</a
+          >
+        </li>
+        <li>
+          <a
+            href="/product"
+            class="nav-link"
+            ><i class="bi bi-boxes"></i> produit</a
+          >
+        </li>
+        <li>
+          <a
+            href="/client"
+            class="nav-link"
+            ><i class="bi bi-people"></i>Liste Clients</a
+          >
+        </li>
+        <li>
+          <a
+            href="/logout"
+            class="nav-link"
+            ><i class="bi bi-box-arrow-right"></i> LogOut</a
+          >
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div id="content">
+      <nav class="navbar navbar-light bg-light mb-4">
+        <div class="container-fluid">
+          <button
+            class="btn btn-outline-secondary d-md-none"
+            id="sidebarToggle"
+            aria-label="Toggle menu"
+          >
+            ☰ Menu
+          </button>
+          <span class="navbar-brand mb-0 h1 txt">
+            <i class="bi bi-box-seam me-2"></i> Ajouter & Catalogue</span
+          >
+        </div>
+      </nav>
+
+      <!-- Recherche -->
+      <div class="container mb-4">
+        <div class="row g-2 align-items-center">
+          <!-- بحث بالاسم أو الكود -->
+          <input
+            type="text"
+            id="searchQuery"
+            class="form-control"
+            placeholder="🔍 Nom ou Code produit..."
+          />
+
+          <!-- بحث بتاريخ الانتهاء -->
+          <label for="searchExpiry">🔍 Date d’expiration</label>
+          <input
+            type="date"
+            id="searchExpiry"
+            class="form-control"
+          />
+        </div>
+      </div>
+
+      <!-- Formulaire Ajouter Produit -->
+      <div style="width: 90%; margin: 20px auto">
+        <button
+          class="btn btn-submit"
+          style="width: 100%; background: #0d6efd; color: white; font-weight: bold"
+          id="btnAjoute"
+        >
+          <i class="bi bi-cart-plus"></i> Ajouter Produit
+        </button>
+      </div>
+
+      <div
+        class="container mb-5 forJoute"
+        id="forJoute"
+      >
+        <div class="card p-4 shadow-sm">
+          <form
+            id="productForm"
+            class="row g-3"
+          >
+            <div class="col-md-6">
+              <label class="form-label">Nom du produit</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-box"></i></span>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="name"
+                  placeholder="Nom du produit...."
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Code Barre</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-barcode"></i></span>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="barcode"
+                  placeholder="5465....."
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Prix (DH)</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-hand-holding-dollar"></i></span>
+                <input
+                  type="number"
+                  step="0.01"
+                  class="form-control"
+                  id="price"
+                  placeholder="Prix (DH)..."
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Quantité</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-boxes-stacked"></i></span>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="quantity"
+                  placeholder="Quantité..;"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Date d’expiration</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                <input
+                  type="date"
+                  class="form-control"
+                  placeholder="Date d’expiration"
+                  id="expiry"
+                />
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Name Du Fournisseur</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-truck"></i></span>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="fournisseur"
+                  placeholder="fournisseur...."
+                />
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label
+                for="productVisibility"
+                class="form-label"
+                >Afficher ce produit sur le site ?</label
+              >
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-exclamation-circle"></i></span>
+                <select
+                  class="form-select"
+                  id="productVisibility"
+                  required
+                >
+                  <option
+                    selected
+                    disabled
+                    value=""
+                  >
+                    Choisissez...
+                  </option>
+                  <option value="oui">Oui</option>
+                  <option value="non">Non</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-12">
+              <label
+                for="productPromotion"
+                class="form-label"
+                >Ce produit est-il en promotion ?</label
+              >
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-exclamation-circle"></i></span>
+
+                <select
+                  class="form-select"
+                  id="productPromotion"
+                  required
+                >
+                  <option
+                    selected
+                    disabled
+                    value=""
+                  >
+                    Choisissez...
+                  </option>
+                  <option value="oui">Oui</option>
+                  <option value="non">Non</option>
+                </select>
+              </div>
+            </div>
+
+            <div
+              class="col-md-4 prixPromo"
+              style="display: none"
+              id="pricePromotionContainer"
+            >
+              <label class="form-label">Prix en Promotion (DH)</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-percent"></i></span>
+                <input
+                  type="number"
+                  step="0.01"
+                  class="form-control"
+                  id="pricePromo"
+                />
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Image (optionnel)</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-image"></i></span>
+                <input
+                  type="file"
+                  class="form-control"
+                  id="imageFile"
+                  accept="image/*"
+                />
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="form-label">ImageUrl (optionnel)</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-link"></i></span>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="imageUrl2"
+                />
+              </div>
+            </div>
+            <div class="col-12">
+              <select
+                class="form-select"
+                id="productCategory"
+                required
+              >
+                <option
+                  selected
+                  disabled
+                  value=""
+                >
+                  Veuillez sélectionner une catégorie...
+                </option>
+                <option value="soins_peau">Soins de la peau & Cosmétiques</option>
+                <option value="cheveux_beaute">Cheveux & Beauté</option>
+                <option value="vitamines_complements">Vitamines & Compléments Alimentaires</option>
+                <option value="maternite_bebe">Maternité & Produits Bébé</option>
+                <option value="hygiene_personnelle">Hygiène & Soins Personnels</option>
+                <option value="nutrition">Nutrition & Produits Minceur</option>
+                <option value="aromatherapie">Huiles Essentielles & Aromathérapie</option>
+                <option value="appareils_sante">Appareils & Accessoires Santé</option>
+              </select>
+            </div>
+
+            <div class="col-12">
+              <button
+                type="submit"
+                class="btn btn-primary w-100"
+                id="btnAjoute"
+              >
+                <i class="fas fa-plus-circle"></i>
+                &nbsp; Ajouter Produit
+              </button>
+            </div>
+          </form>
+          <div
+            id="message"
+            class="mt-3"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Liste Produits -->
+      <!-- نستخدم Bootstrap grid: row + col-.. -->
+      <div
+        id="productList"
+        class="row g-4"
+      ></div>
+      <div
+        class="paginationControls"
+        id="paginationControls"
+      ></div>
+    </div>
+
+    <!-- Modal Modifier Produit -->
+    <div
+      class="modal fade"
+      id="editModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <form
+          id="editForm"
+          class="modal-content"
+        >
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">
+              <i class="fa-solid fa-pen-to-square me-2"></i>Modifier Produit
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+
+          <div class="modal-body">
+            <input
+              type="hidden"
+              id="editId"
+            />
+
+            <!-- Nom -->
+            <div class="mb-3">
+              <label class="form-label"><i class="fa-solid fa-tag me-2 text-primary"></i>Nom</label>
+              <input
+                type="text"
+                id="editName"
+                class="form-control"
+                required
+              />
+            </div>
+
+            <!-- Prix -->
+            <div class="mb-3">
+              <label class="form-label"
+                ><i class="fa-solid fa-dollar-sign me-2 text-success"></i>Prix</label
+              >
+              <input
+                type="number"
+                id="editPrice"
+                class="form-control"
+                required
+              />
+            </div>
+
+            <!-- Quantité -->
+            <div class="mb-3">
+              <label class="form-label"
+                ><i class="fa-solid fa-boxes-stacked me-2 text-info"></i>Quantité</label
+              >
+              <input
+                type="number"
+                id="editQuantity"
+                class="form-control"
+                required
+              />
+            </div>
+
+            <!-- Barcode -->
+            <div class="mb-3">
+              <label class="form-label"
+                ><i class="fa-solid fa-barcode me-2 text-dark"></i>Code-barres</label
+              >
+              <input
+                type="text"
+                id="editBarcode"
+                class="form-control"
+                required
+              />
+            </div>
+
+            <!-- Fournisseur -->
+            <div class="mb-3">
+              <label class="form-label"
+                ><i class="fa-solid fa-user-tie me-2 text-warning"></i>Nom du Fournisseur</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="editFournisseur"
+              />
+            </div>
+
+            <!-- Visibilité -->
+            <div class="mb-3">
+              <label
+                for="editVisibility"
+                class="form-label"
+                ><i class="fa-solid fa-eye me-2 text-secondary"></i>Afficher ce produit sur le site
+                ?</label
+              >
+              <select
+                class="form-select"
+                id="editVisibility"
+                required
+              >
+                <option
+                  selected
+                  disabled
+                  value=""
+                >
+                  Choisissez...
+                </option>
+                <option value="oui">Oui</option>
+                <option value="non">Non</option>
+              </select>
+            </div>
+
+            <!-- Promotion -->
+            <div class="mb-3">
+              <label
+                for="editPromotion"
+                class="form-label"
+                ><i class="fa-solid fa-percent me-2 text-danger"></i>Ce produit est-il en promotion
+                ?</label
+              >
+              <select
+                class="form-select"
+                id="editPromotion"
+                required
+              >
+                <option
+                  selected
+                  disabled
+                  value=""
+                >
+                  Choisissez...
+                </option>
+                <option value="oui">Oui</option>
+                <option value="non">Non</option>
+              </select>
+            </div>
+
+            <!-- Prix en promotion -->
+            <div class="mb-3 promo">
+              <label class="form-label"
+                ><i class="fa-solid fa-tags me-2 text-danger"></i>Prix en Promotion</label
+              >
+              <input
+                type="number"
+                id="editPricePromo"
+                class="form-control"
+              />
+            </div>
+
+            <!-- Date d’expiration -->
+            <div class="mb-3">
+              <label class="form-label"
+                ><i class="fa-solid fa-calendar-day me-2 text-primary"></i>Date d’expiration</label
+              >
+              <input
+                type="date"
+                id="editExpiry"
+                class="form-control"
+                required
+              />
+            </div>
+            <div class="col-12">
+              <label class="form-label">Image (optionnel)</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-image"></i></span>
+                <input
+                  type="file"
+                  class="form-control"
+                  id="editImageFile"
+                  accept="image/*"
+                />
+              </div>
+            </div>
+
+            <!-- Image -->
+            <div class="mb-3">
+              <label class="form-label"
+                ><i class="fa-solid fa-image me-2 text-secondary"></i>ImageUrl (optionnel)</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="editImgeUrl"
+              />
+            </div>
+
+            <!-- Catégorie -->
+            <div class="mb-3">
+              <label class="form-label"
+                ><i class="fa-solid fa-list me-2 text-success"></i>Catégorie</label
+              >
+              <select
+                class="form-select"
+                id="editCategory"
+                required
+              >
+                <option
+                  selected
+                  disabled
+                  value=""
+                >
+                  Veuillez sélectionner une catégorie...
+                </option>
+                <option value="soins_peau">Soins de la peau & Cosmétiques</option>
+                <option value="cheveux_beaute">Cheveux & Beauté</option>
+                <option value="vitamines_complements">Vitamines & Compléments Alimentaires</option>
+                <option value="maternite_bebe">Maternité & Produits Bébé</option>
+                <option value="hygiene_personnelle">Hygiène & Soins Personnels</option>
+                <option value="nutrition">Nutrition & Produits Minceur</option>
+                <option value="aromatherapie">Huiles Essentielles & Aromathérapie</option>
+                <option value="appareils_sante">Appareils & Accessoires Santé</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              <i class="fa-solid fa-xmark me-2"></i>Annuler
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary"
+            >
+              <i class="fa-solid fa-floppy-disk me-2"></i>Enregistrer
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script
+      src="js/admin.js"
+      type="text/javascript"
+      charset="utf-8"
+    ></script>
+  </body>
+</html>
