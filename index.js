@@ -49,7 +49,7 @@ app.use(compression());
 // 🟢 أولًا: ضبط الجلسة
 app.use(
   session({
-    secret: 'my_secret_key',
+    secret: '#@%*^*@^%%@(@^&@727',
     resave: false,
     saveUninitialized: false,
     cookie: { maxAge: 1000 * 60 * 60 }, // ساعة

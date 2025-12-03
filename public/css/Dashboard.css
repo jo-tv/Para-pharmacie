@@ -5,6 +5,7 @@ body {
   display: flex;
   overflow-x: hidden;
 }
+
 .logo {
   width: 150px;
   height: 150px;
@@ -18,12 +19,13 @@ body {
     rgba(195, 195, 241, 0.707) 0px 8px 24px,
     rgba(207, 207, 249, 0.784) 0px 16px 56px;
 }
+
 #sidebar {
   min-width: 220px;
   max-width: 220px;
+  height: 100%;
   background: #343a40;
   color: #fff;
-  height: 100vh;
   position: fixed;
   top: 0;
   left: -220px;
@@ -31,9 +33,11 @@ body {
   transition: left 0.3s ease;
   overflow-y: auto;
 }
+
 #sidebar.active {
   left: 0;
 }
+
 #sidebar .nav-link {
   color: #fff;
   padding: 10px;
@@ -44,20 +48,24 @@ body {
   text-transform: uppercase;
   transition: 0.25s;
 }
+
 #sidebar .nav-link i {
   margin-right: 10px;
   font-size: 20px;
 }
+
 #sidebar .nav-link:hover {
   background: #495057;
   color: #0dcaf0;
   transform: translateX(5px);
   text-shadow: -3px -2px 0px rgba(170, 172, 196, 1);
 }
+
 #sidebar .nav-link.active {
   background: #0dcaf0;
   color: #fff;
 }
+
 #content {
   flex: 1;
   padding: 20px;
@@ -65,9 +73,11 @@ body {
   transition: margin-left 0.3s ease;
   width: 100%;
 }
+
 .withSidebar {
   margin-left: 220px !important;
 }
+
 #sidebarToggle {
   display: inline-block;
 }
@@ -81,6 +91,7 @@ body {
   align-items: center;
   width: 100%;
 }
+
 .value {
   width: 80%;
   height: 70%;
@@ -90,15 +101,18 @@ body {
   letter-spacing: 1px;
   font-weight: 600;
 }
+
 .value :nth-child(1) {
   text-shadow: 0px 0px 6px rgba(66, 68, 90, 1);
   margin-top: 10px;
 }
+
 .value :nth-child(2) {
   font-size: 19px;
   font-weight: 900;
   padding: 10px 20px;
 }
+
 .stat-card {
   border-radius: 1rem;
   box-shadow:
@@ -111,9 +125,11 @@ body {
   text-align: center;
   padding: 50px;
 }
+
 .stat-card:hover {
   transform: translateX(-15px);
 }
+
 .stat-card i {
   width: 3rem;
   font-size: 1.7rem;
@@ -124,23 +140,29 @@ body {
   align-items: center;
   justify-content: center;
 }
+
 .value {
   font-size: 13px;
   width: 50%;
 }
+
 .bg-primary-light {
   background-color: #0d6efd;
 }
+
 .bg-success-light {
   background-color: #198754;
 }
+
 .bg-danger-light {
   background-color: #dc3545;
 }
+
 .bg-warning-light {
   background-color: #ffc107;
   color: #000;
 }
+
 .chart {
   height: 380px;
   display: flex;
@@ -148,26 +170,31 @@ body {
   align-items: center;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
+
 .tableChart {
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   margin-bottom: 20px;
   text-align: center;
 }
+
 .container-chart {
   display: flex;
   align-items: center;
   justify-content: space-around;
   padding: 10px;
 }
+
 @media (min-width: 768px) {
   #sidebar {
     left: 0;
-    
+
   }
+
   #sidebarToggle {
     display: none;
   }
 }
+
 @media (min-width: 800px) {
   .cardsVue {
     min-height: 150px;
@@ -175,6 +202,7 @@ body {
     justify-content: space-around;
     align-items: center;
   }
+
   .value {
     display: flex;
     flex-direction: column;
@@ -183,6 +211,7 @@ body {
     gap: 5px;
   }
 }
+
 @media (min-width: 992px) {
   .col-lg-6 {
     flex: 0 0 auto;
@@ -212,6 +241,7 @@ body {
     0 10px 10px rgba(0, 0, 0, 0.2),
     0 20px 20px rgba(0, 0, 0, 0.15);
 }
+
 .txt {
   text-align: center;
 }
@@ -220,18 +250,21 @@ body {
   color: #853bd1bf;
   font-size: 4rem;
 }
+
 @media (max-width: 768px) {
   .navbar-brand {
     position: relative !important;
     top: -20px !important;
   }
+
   .txt {
     font-size: 25px !important;
     text-align: right !important;
   }
+
   .txt i {
     font-size: 36px !important;
   }
 }
-.logo {
-}
+
+.logo {}

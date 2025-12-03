@@ -4,11 +4,13 @@ body {
   height: 100%;
   font-family: 'Roboto', sans-serif;
 }
+
 body {
   background: #f8f9fa;
   min-height: 100vh;
   display: flex;
-  overflow-x: hidden; /* منع overflow أفقي */
+  overflow-x: hidden;
+  /* منع overflow أفقي */
   margin: 0;
 }
 
@@ -19,18 +21,21 @@ body {
   background: #343a40;
   color: #fff;
   transition:
-    left 0.3s ease,
-    transform 0.3s ease;
-  height: 100vh;
+    left 0.5s ease,
+    transform 0.5s ease;
+  height: 100%;
   position: fixed;
   top: 0;
-  left: -220px; /* مخفي افتراضيا على الموبايل */
+  left: -220px;
+  /* مخفي افتراضيا على الموبايل */
   z-index: 1000;
   overflow-y: auto;
 }
+
 #sidebar.active {
   left: 0;
 }
+
 #sidebar .nav-link {
   color: #fff;
   padding: 10px;
@@ -41,15 +46,18 @@ body {
   text-transform: uppercase;
   transition: 0.25s;
 }
+
 #sidebar .nav-link i {
   margin-right: 10px;
   font-size: 20px;
 }
+
 #sidebar .nav-link:hover {
   background: #495057;
   color: #0dcaf0;
   transform: translateX(5px);
 }
+
 #sidebar .nav-link.active {
   background: #0dcaf0;
   color: #fff;
@@ -59,10 +67,12 @@ body {
 #content {
   flex: 1;
   padding: 20px;
-  margin-left: 0; /* يتغير عند وجود sidebar */
+  margin-left: 0;
+  /* يتغير عند وجود sidebar */
   transition: margin-left 0.3s ease;
   width: 100%;
 }
+
 /* عندما نضيف هذه الكلاس يتم دف المحتوى لليمين */
 .withSidebar {
   margin-left: 220px !important;
@@ -78,16 +88,22 @@ body {
   #sidebar {
     left: 0;
   }
+
   #sidebar.active {
     left: 0;
   }
+
   #sidebarToggle {
     display: none;
-  } /* إخفاء زر التبديل على ديسكتوب */
+  }
+
+  /* إخفاء زر التبديل على ديسكتوب */
 }
+
 .forJoute {
   display: none;
 }
+
 .activeAjoute {
   display: block;
 }
@@ -139,7 +155,8 @@ body {
 .btn-delete:hover {
   background: #d9363e;
 }
-#confirm-sale{
+
+#confirm-sale {
   box-shadow:
     rgba(6, 24, 44, 0.4) 0px 0px 0px 2px,
     rgba(6, 24, 44, 0.65) 0px 4px 6px -1px,
@@ -153,7 +170,6 @@ body {
   border: none;
   background: transparent;
 }
-
 
 .txt {
   color: #fff;
@@ -175,6 +191,7 @@ body {
     0 10px 10px rgba(0, 0, 0, 0.2),
     0 20px 20px rgba(0, 0, 0, 0.15);
 }
+
 .txt {
   text-align: center;
 }
@@ -183,16 +200,18 @@ body {
   color: #853bd1bf;
   font-size: 4rem;
 }
+
 @media (max-width: 768px) {
   .navbar-brand {
-    
     position: relative !important;
     top: -20px !important;
   }
+
   .txt {
     font-size: 25px !important;
     text-align: right !important;
   }
+
   .txt i {
     font-size: 36px !important;
   }
