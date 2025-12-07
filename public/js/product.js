@@ -165,7 +165,7 @@ function renderProducts(list) {
     responsive: true,
     pageLength: 20,
     lengthMenu: [10, 20, 50, 100],
-    dom: 'Bfrtip',
+    dom: 'Bflrtip',
     buttons: [
       {
         extend: 'excelHtml5',

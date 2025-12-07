@@ -21,6 +21,7 @@ body {
   left: -220px; /* مخفي افتراضيا على الموبايل */
   z-index: 1000;
   overflow-y: auto;
+  
 }
 #sidebar.active {
   left: 0;

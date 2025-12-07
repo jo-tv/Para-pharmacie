@@ -1,188 +1,189 @@
 <!doctype html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0"
-    />
-    <link
-      rel="manifest"
-      href="manifest.json"
-    />
-    <meta
-      name="theme-color"
-      content="#2196f3"
-    />
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="manifest" href="manifest.json" />
+        <meta name="theme-color" content="#2196f3" />
 
-    <!-- أيقونة أساسية -->
-    <link
-      rel="icon"
-      href="/icons/icon-192.png"
-    />
-    <title>Catalogue Produits</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="css/ticket.css"
-      type="text/css"
-      media="all"
-    />
-  </head>
-  <body>
-    <!-- Sidebar -->
-    <nav
-      id="sidebar"
-      class="d-flex flex-column p-3"
-    >
-      <a
-        href="#"
-        class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none"
-      >
-        <i class="bi bi-heart-pulse-fill fs-4 me-2"></i>
-        <span class="fs-4">Parapharmacie</span>
-      </a>
-      <hr />
-      <ul class="nav nav-pills flex-column mb-auto">
-        <li class="nav-item">
-          <a
-            href="/"
-            class="nav-link"
-            ><i class="bi bi-speedometer2"></i> Dashboard</a
-          >
-        </li>
-        <li>
-          <a
-            href="/caisse"
-            class="nav-link"
-            ><i class="bi bi-cart-plus"></i> Caisse</a
-          >
-        </li>
-        <li>
-          <a
-            href="/ticket"
-            class="nav-link active"
-            ><i class="bi bi-bag-check-fill"></i> Ticket</a
-          >
-        </li>
-        <li>
-          <a
-            href="/ajouter"
-            class="nav-link"
-            ><i class="bi bi-box-seam me-2"></i> Ajouter Produit</a
-          >
-        </li>
-        <li>
-          <a
-            href="/product"
-            class="nav-link"
-            ><i class="bi bi-boxes"></i> produit</a
-          >
-        </li>
-        <li>
-          <a
-            href="/client"
-            class="nav-link"
-            ><i class="bi bi-people"></i>Liste Clients</a
-          >
-        </li>
-        <li>
-          <a
-            href="/logout"
-            class="nav-link"
-            ><i class="bi bi-box-arrow-right"></i> LogOut</a
-          >
-        </li>
-      </ul>
-    </nav>
+        <!-- أيقونة أساسية -->
+        <link rel="icon" href="/icons/icon-192.png" />
+        <title>Catalogue Produits</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+        />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+            rel="stylesheet"
+        />
+        <link
+            rel="stylesheet"
+            href="css/ticket.css"
+            type="text/css"
+            media="all"
+        />
+    <style>
+        .scanner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 999999;
+        }
+        .scanner #reader {
+            width: 100%;
+            max-width: 400px;
+            display: none;
+            margin: auto;
+            box-shadow:
+                rgba(0, 0, 0, 0.3) 0px 19px 38px,
+                rgba(0, 0, 0, 0.22) 0px 15px 12px;
+            border: dashed solid #4285f4;
+        }
 
-    <!-- Main Content -->
-    <div id="content">
-      <nav class="navbar navbar-light bg-light mb-4">
-        <div class="container-fluid">
-          <!-- زر القائمة للهواتف -->
-          <button
-            class="btn btn-outline-secondary d-md-none"
-            id="sidebarToggle"
-          >
-            ☰ Menu
-          </button>
-          <span class="navbar-brand mb-0 h1 txt"
-            ><i class="bi bi-file-earmark-break-fill"></i> ticket & facture</span
-          >
-        </div>
-      </nav>
-
-      <!-- Recherche -->
-      <div
-        class="container mb-4"
-        style="text-align: left"
-      >
-        <div class="search-container">
-          <label for="startDate">🔍 Date de début :</label>
-          <input
-            type="date"
-            id="startDate"
-            class="form-control"
-          />
-
-          <label for="endDate">🔍 Date de fin :</label>
-          <input
-            type="date"
-            id="endDate"
-            class="form-control"
-          />
-
-          <label for="searchTerm">🔍 Recherche par code-barres/montant :</label>
-          <input
-            type="text"
-            id="searchTerm"
-            class="form-control"
-          />
-
-          <button
-            class="form-control btn btn-info mt-5"
-            id="searchButton"
-          >
-            بحث
-          </button>
-        </div>
-      </div>
-
-      <!-- From Uiverse.io by Yaya12085 -->
-      <div class="card">
-        <div class="content total-ventes-container">
-          <h3 class="title">Total ventes :</h3>
-          <p>
-            <span
-              id="totalVentes"
-              class="price"
+        .scanner .fermer {
+            background: red;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            outline: none;
+            border: none;
+            font-size: 25px;
+            color: #fff;
+            font-weight: 900;
+            box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;
+            position: absolute;
+            top: 0;
+            right: 12%;
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+    </head>
+    <body>
+        <!-- Sidebar -->
+        <nav id="sidebar" class="d-flex flex-column p-3">
+            <a
+                href="#"
+                class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none"
             >
-              0.00</span
-            >
-            <span class="MAD">MAD /TTC</span>
-          </p>
+                <i class="bi bi-heart-pulse-fill fs-4 me-2"></i>
+                <span class="fs-4">Parapharmacie</span>
+            </a>
+            <hr />
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item">
+                    <a href="/" class="nav-link"
+                        ><i class="bi bi-speedometer2"></i> Dashboard</a
+                    >
+                </li>
+                <li>
+                    <a href="/caisse" class="nav-link"
+                        ><i class="bi bi-cart-plus"></i> Caisse</a
+                    >
+                </li>
+                <li>
+                    <a href="/ticket" class="nav-link active"
+                        ><i class="bi bi-bag-check-fill"></i> Ticket</a
+                    >
+                </li>
+                <li>
+                    <a href="/ajouter" class="nav-link"
+                        ><i class="bi bi-box-seam me-2"></i> Ajouter Produit</a
+                    >
+                </li>
+                <li>
+                    <a href="/product" class="nav-link"
+                        ><i class="bi bi-boxes"></i> produit</a
+                    >
+                </li>
+                <li>
+                    <a href="/client" class="nav-link"
+                        ><i class="bi bi-people"></i>Liste Clients</a
+                    >
+                </li>
+                <li>
+                    <a href="/logout" class="nav-link"
+                        ><i class="bi bi-box-arrow-right"></i> LogOut</a
+                    >
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <div id="content">
+            <nav class="navbar navbar-light bg-light mb-4">
+                <div class="container-fluid">
+                    <!-- زر القائمة للهواتف -->
+                    <button
+                        class="btn btn-outline-secondary d-md-none"
+                        id="sidebarToggle"
+                    >
+                        ☰ Menu
+                    </button>
+                    <span class="navbar-brand mb-0 h1 txt"
+                        ><i class="bi bi-file-earmark-break-fill"></i> ticket &
+                        facture</span
+                    >
+                </div>
+            </nav>
+            <div class="container scanner">
+                <button class="fermer">X</button>
+                <!-- div input search -->
+                <div id="reader"></div>
+                <!-- Recherche -->
+            </div>
+            <!-- Recherche -->
+            <div class="container mb-4" style="text-align: left">
+                <div class="search-container">
+                    <label for="startDate">🔍 Date de début :</label>
+                    <input type="date" id="startDate" class="form-control" />
+
+                    <label for="endDate">🔍 Date de fin :</label>
+                    <input type="date" id="endDate" class="form-control" />
+
+                    <label for="searchTerm"
+                        >🔍 Recherche par code-barres/montant :</label
+                    >
+                    <input type="text" id="searchTerm" class="form-control" />
+
+                    <button
+                        class="form-control btn btn-success mt-5"
+                        id="btnscan"
+                    >
+                        <i class="bi bi-upc-scan fs-4 m-3"></i>
+                        Scanner Code-Barre
+                    </button>
+                    <button
+                        class="form-control btn btn-info mt-5"
+                        id="searchButton"
+                    >
+                        بحث
+                    </button>
+                </div>
+            </div>
+
+            <!-- From Uiverse.io by Yaya12085 -->
+            <div class="card">
+                <div class="content total-ventes-container">
+                    <h3 class="title">Total ventes :</h3>
+                    <p>
+                        <span id="totalVentes" class="price"> 0.00</span>
+                        <span class="MAD">MAD /TTC</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="container-ticket">
+                <!-- التذاكر ستولد هنا -->
+            </div>
         </div>
-      </div>
 
-      <div class="container-ticket">
-        <!-- التذاكر ستولد هنا -->
-      </div>
-    </div>
-
-    <!-- مكتبات -->
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script
-      src="js/ticket.js"
-      type="text/javascript"
-    ></script>
-  </body>
+        <!-- مكتبات -->
+        <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+        <script src="js/ticket.js" type="text/javascript"></script>
+        <script src="js/codebare.main.js"></script>
+    </body>
 </html>
